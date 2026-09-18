@@ -5,11 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Oqab Academy — Teacher Control Panel">
   <title>Teacher Dashboard | Oqab Academy</title>
-  
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
   <style>
     :root {
       --ink: #102235;
@@ -39,7 +34,7 @@
     }
     .brand { display: flex; align-items: center; gap: 10px; font-size: 1.25rem; font-weight: bold; }
     .brand a { color: white; text-decoration: none; }
-    .nav-links { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .nav-links { display: flex; gap: 8px; align-items: center; }
     .nav-links a, .nav-links button {
       background: #1e3a5f;
       color: white;
@@ -62,19 +57,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       margin-bottom: 24px;
     }
-
-    .cloud-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      margin-bottom: 16px;
-    }
-    .cloud-online { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
-    .cloud-offline { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
 
     .top-actions {
       display: flex;
@@ -152,96 +134,73 @@
     .form-group { margin-bottom: 14px; }
     .form-group label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
     .form-group input, .form-group select { width: 100%; }
-
-    #auth-gate { max-width: 420px; margin: 80px auto; text-align: center; }
   </style>
 </head>
 <body>
 
-  <!-- 1. Teacher Passcode Screen -->
-  <div id="auth-gate" class="panel">
-    <h2>Teacher Login</h2>
-    <p class="muted">Enter your Teacher Password to manage classes and students.</p>
-    <div class="form-group">
-      <input type="password" id="teacher-pin" placeholder="Enter Teacher Password">
+  <!-- Direct Entry to Teacher Dashboard -->
+  <header>
+    <div class="brand">
+      <a href="./">Oqab Academy</a> ➔ <span>Teacher Control Panel</span>
     </div>
-    <button class="btn btn-primary" style="width:100%" id="btn-unlock">Unlock Dashboard</button>
-    <div style="margin-top:14px">
-      <button type="button" class="btn btn-outline btn-sm" id="btn-forgot-teacher-pass">Forgot Password?</button>
+    <div class="nav-links">
+      <a href="./vocab/">Open Vocab App</a>
+      <button id="btn-teacher-settings">⚙️ Settings & Password</button>
     </div>
-    <p id="pin-error" style="color:var(--red);font-size:0.85rem;margin-top:8px" hidden>Incorrect password. Please try again.</p>
-  </div>
+  </header>
 
-  <!-- 2. Main Protected Dashboard -->
-  <div id="dashboard-content" hidden>
-    <header>
-      <div class="brand">
-        <a href="./">Oqab Academy</a> ➔ <span>Teacher Control Panel</span>
+  <main>
+    <div class="stats-bar">
+      <div class="stat-card">
+        <strong id="stat-total-students">0</strong>
+        <span>Enrolled Students</span>
       </div>
-      <div class="nav-links">
-        <a href="./vocab/">Open Vocab App</a>
-        <button id="btn-teacher-settings">⚙️ Settings & Password</button>
-        <button id="btn-lock">Lock & Sign Out</button>
+      <div class="stat-card">
+        <strong id="stat-total-classes">0</strong>
+        <span>Active Classes</span>
       </div>
-    </header>
-
-    <main>
-      <div id="cloud-status-badge" class="cloud-status cloud-offline">
-        ⏳ Connecting to Firebase Cloud (oqab-portal)...
+      <div class="stat-card">
+        <strong id="stat-total-xp">0</strong>
+        <span>Total Student XP</span>
       </div>
+    </div>
 
-      <div class="stats-bar">
-        <div class="stat-card">
-          <strong id="stat-total-students">64</strong>
-          <span>Enrolled Students</span>
+    <div class="panel">
+      <div class="top-actions">
+        <div class="filters">
+          <input type="text" id="search-input" placeholder="Search by name or ID (e.g. S647832)...">
+          <select id="class-filter">
+            <option value="all">All Classes</option>
+          </select>
+          <button class="btn btn-outline btn-sm" id="btn-manage-classes">📁 Manage Classes</button>
         </div>
-        <div class="stat-card">
-          <strong id="stat-total-classes">3</strong>
-          <span>Classes (7D, 7H, 7E)</span>
-        </div>
-        <div class="stat-card">
-          <strong id="stat-total-xp">0</strong>
-          <span>Total Student XP</span>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="top-actions">
-          <div class="filters">
-            <input type="text" id="search-input" placeholder="Search by name or S-number...">
-            <select id="class-filter">
-              <option value="all">All Classes (7D, 7H, 7E)</option>
-            </select>
-            <button class="btn btn-outline btn-sm" id="btn-manage-classes">📁 Classes</button>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-primary" id="btn-add-student">＋ Add Student</button>
-            <button class="btn btn-outline" id="btn-export-roster">📥 Export to Excel</button>
-            <button class="btn btn-outline" id="btn-import-roster">📤 Import</button>
-            <input type="file" id="file-import-csv" accept=".json,.csv" hidden>
-          </div>
-        </div>
-
-        <div style="overflow-x:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>Student ID</th>
-                <th>Full Name</th>
-                <th>Class</th>
-                <th>Password (Visible to Teacher)</th>
-                <th>Total XP</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="roster-tbody"></tbody>
-          </table>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" id="btn-add-student">＋ Add Student</button>
+          <button class="btn btn-outline" id="btn-export-roster">📥 Export to Excel (CSV)</button>
+          <button class="btn btn-outline" id="btn-import-roster">📤 Import</button>
+          <input type="file" id="file-import-csv" accept=".json,.csv" hidden>
         </div>
       </div>
-    </main>
-  </div>
 
-  <!-- Dialog: Add / Edit Student -->
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Full Name</th>
+              <th>Class</th>
+              <th>Password</th>
+              <th>Total XP</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="roster-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add / Edit Student Dialog -->
   <dialog id="modal-student">
     <div class="dialog-header">
       <h3 id="modal-student-title">Add Student</h3>
@@ -250,22 +209,26 @@
     <form id="form-student">
       <input type="hidden" id="student-edit-index">
       <div class="form-group">
-        <label>Student ID (S + 6 digits)</label>
+        <label>Student ID (Format: S + 6 digits, e.g. S647832)</label>
         <div style="display:flex;gap:6px">
-          <input type="text" id="input-student-id" required pattern="[Ss][0-9]{6}" maxlength="7" placeholder="S190256">
+          <input type="text" id="input-student-id" required pattern="[Ss][0-9]{6}" maxlength="7" placeholder="S647832">
           <button type="button" class="btn btn-outline btn-sm" id="btn-gen-id">Auto</button>
         </div>
       </div>
       <div class="form-group">
-        <label>Full Name (First, Second, and Last name)</label>
-        <input type="text" id="input-fullname" required placeholder="e.g. Abdullah Mohammad Akl">
+        <label>First Name</label>
+        <input type="text" id="input-fname" required placeholder="e.g. Omar">
       </div>
       <div class="form-group">
-        <label>Class</label>
+        <label>Last Name</label>
+        <input type="text" id="input-lname" required placeholder="e.g. Khaled">
+      </div>
+      <div class="form-group">
+        <label>Class / Level</label>
         <select id="input-class" required></select>
       </div>
       <div class="form-group">
-        <label>Password</label>
+        <label>Temporary Password</label>
         <input type="text" id="input-temp-pass" required placeholder="Temporary password" value="Oqab2026!">
       </div>
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
@@ -275,27 +238,27 @@
     </form>
   </dialog>
 
-  <!-- Dialog: Manage Classes -->
+  <!-- Manage Classes Dialog -->
   <dialog id="modal-classes">
     <div class="dialog-header">
       <h3>Manage Classes</h3>
       <button class="btn btn-outline btn-sm" onclick="this.closest('dialog').close()">✕</button>
     </div>
     <div class="form-group">
-      <label>Add New Class</label>
+      <label>Create New Class</label>
       <div style="display:flex;gap:6px">
-        <input type="text" id="input-new-class-name" placeholder="e.g. 7F">
-        <button class="btn btn-primary btn-sm" id="btn-add-class-confirm">Add</button>
+        <input type="text" id="input-new-class-name" placeholder="e.g. Grade 8 - Advanced">
+        <button class="btn btn-primary btn-sm" id="btn-add-class-confirm">Create</button>
       </div>
     </div>
-    <h4>Active Classes</h4>
+    <h4>Current Classes</h4>
     <ul id="class-list-ul" style="padding-left:20px;max-height:180px;overflow-y:auto"></ul>
     <div style="text-align:right;margin-top:16px">
-      <button class="btn btn-outline" onclick="this.closest('dialog').close()">Close</button>
+      <button class="btn btn-outline" onclick="this.closest('dialog').close()">Done</button>
     </div>
   </dialog>
 
-  <!-- Dialog: Teacher Settings & Password Management -->
+  <!-- Teacher Settings Modal -->
   <dialog id="modal-teacher-settings">
     <div class="dialog-header">
       <h3>Teacher Account Settings</h3>
@@ -304,190 +267,33 @@
     <form id="form-teacher-settings">
       <div class="form-group">
         <label>Recovery Email</label>
-        <input type="email" id="teacher-recovery-email" readonly value="ahmed.okap2@gmail.com">
+        <input type="email" id="teacher-recovery-email" required placeholder="ahmedokap95@gmail.com">
       </div>
-      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
-      <h4>Change Teacher Password</h4>
       <div class="form-group">
         <label>New Password</label>
-        <input type="password" id="teacher-new-pass" minlength="6" placeholder="Enter new password (min 6 characters)">
+        <input type="password" id="teacher-new-pass" minlength="6" placeholder="Leave blank to keep unchanged">
       </div>
       <p id="settings-msg" style="font-size:0.85rem;" hidden></p>
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
         <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Close</button>
-        <button type="submit" class="btn btn-primary">Save Password</button>
+        <button type="submit" class="btn btn-primary">Save Settings</button>
       </div>
     </form>
   </dialog>
 
-  <!-- Dialog: Teacher Password Recovery -->
-  <dialog id="modal-forgot-pass">
-    <div class="dialog-header">
-      <h3>Reset Teacher Password</h3>
-      <button class="btn btn-outline btn-sm" onclick="this.closest('dialog').close()">✕</button>
-    </div>
-    <p class="muted" style="font-size:0.9rem">Your recovery email is: <b>ahmed.okap2@gmail.com</b></p>
-    <div id="code-step" hidden>
-      <div class="form-group">
-        <label>Verification Code</label>
-        <input type="text" id="recovery-input-code" placeholder="Enter 6-digit code">
-      </div>
-      <div class="form-group">
-        <label>New Password</label>
-        <input type="password" id="recovery-new-pass" placeholder="Enter new password (min 6 characters)">
-      </div>
-    </div>
-    <p id="recovery-msg" style="font-size:0.85rem;" hidden></p>
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
-      <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Cancel</button>
-      <button type="button" class="btn btn-primary" id="btn-send-code">Send Reset Code to Email</button>
-      <button type="button" class="btn btn-success" id="btn-submit-reset" hidden>Set New Password</button>
-    </div>
-  </dialog>
-
   <script>
-    // 1. Firebase Initialization
-    const firebaseConfig = {
-      apiKey: "AIzaSyAVBpkM7N6fLgtLk178OIBHo9T28kQ8QU0",
-      authDomain: "oqab-portal.firebaseapp.com",
-      projectId: "oqab-portal",
-      storageBucket: "oqab-portal.firebasestorage.app",
-      messagingSenderId: "728610451913",
-      appId: "1:728610451913:web:8d1d852685ee80f429b818"
-    };
+    let teacherEmail = localStorage.getItem('oqab_teacher_email') || 'ahmedokap95@gmail.com';
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let isCloudOnline = false;
-    let teacherPassword = localStorage.getItem('oqab_teacher_pass') || 'oqab2026';
-    const teacherEmail = "ahmed.okap2@gmail.com";
-    let generatedResetCode = null;
-
-    // 2. Complete Roster (64 Students from 7D, 7H, 7E)
     const DEFAULT_ROSTER = [
-      // 7D (20 students)
-      {"id": "S190256", "firstName": "Abdullah", "lastName": "Akl", "fullName": "Abdullah Mohammad Akl", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S191030", "firstName": "Abdullah", "lastName": "Aljarba", "fullName": "Abdullah Omar Aljarba", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S180472", "firstName": "Abdullah", "lastName": "Abanumay", "fullName": "Abdullah Sulaiman Abanumay", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S200238", "firstName": "Abdulmohsen", "lastName": "Alsalem", "fullName": "Abdulmohsen Abdullah Alsalem", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S180012", "firstName": "Aser", "lastName": "Ahmed", "fullName": "Aser Mohammed Ahmed", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S220394", "firstName": "Eyad", "lastName": "Mohamed", "fullName": "Eyad Aly Mohamed", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S180066", "firstName": "Fahad", "lastName": "Alkhunizan", "fullName": "Fahad Faisal Alkhunizan", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S200055", "firstName": "Faisal", "lastName": "Alnuwaiser", "fullName": "Faisal Bassam Alnuwaiser", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S240205", "firstName": "Hamza", "lastName": "Abdelaal", "fullName": "Hamza Mohamed Abdelaal", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S180331", "firstName": "Hisham", "lastName": "Abouobaya", "fullName": "Hisham Loay Abouobaya", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S260095", "firstName": "Huthayfa", "lastName": "Abdelaziz", "fullName": "Huthayfa Mohamed Abdelaziz", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S191171", "firstName": "Ibrahim", "lastName": "Alzomia", "fullName": "Ibrahim Abdullah Alzomia", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S170878", "firstName": "Ibrahim", "lastName": "Abalkhail", "fullName": "Ibrahim Naif Abalkhail", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S221763", "firstName": "Ibrahim", "lastName": "Alidarous", "fullName": "Ibrahim Reda Alidarous", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S250806", "firstName": "Malek", "lastName": "Elgebaly", "fullName": "Malek Diaaeidin Elgebaly", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S200021", "firstName": "Meshal", "lastName": "Halrumayh", "fullName": "Meshal Mohammed Halrumayh", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S171288", "firstName": "Mohamed", "lastName": "Kassem", "fullName": "Mohamed Ahmed Kassem", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S190350", "firstName": "Nawaf", "lastName": "Bawazir", "fullName": "Nawaf Fawaz Bawazir", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S250436", "firstName": "Omar", "lastName": "Almuhaize", "fullName": "Omar Mohammed Almuhaize", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S250234", "firstName": "Zeyad", "lastName": "Mahmoud", "fullName": "Zeyad Mahmoud Mahmoud", "className": "7D", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-
-      // 7H (24 students)
-      {"id": "S171070", "firstName": "Abdullah", "lastName": "Alkharaz", "fullName": "Abdullah Alkharaz", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S190720", "firstName": "Abdulrahman", "lastName": "Albassam", "fullName": "Abdulrahman Hussam Albassam", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S220886", "firstName": "Adam", "lastName": "Elmetwaly", "fullName": "Adam Mohamed Elmetwaly", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S210116", "firstName": "Ali", "lastName": "Irshaid", "fullName": "Ali Mohannad Irshaid", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S260494", "firstName": "Elias", "lastName": "Albohaisi", "fullName": "Elias Anas Albohaisi", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S220197", "firstName": "Eyad", "lastName": "Shehata", "fullName": "Eyad Mostafa Shehata", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S180700", "firstName": "Fahad", "lastName": "Ibin Nafisah", "fullName": "Fahad Bander Ibin Nafisah", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S180343", "firstName": "Faisal", "lastName": "Alomair", "fullName": "Faisal Abdulaziz Alomair", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S200368", "firstName": "Faisal", "lastName": "Alshahrani", "fullName": "Faisal Ali Alshahrani", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S210302", "firstName": "Faisal", "lastName": "Alshahrani", "fullName": "Faisal Mohammad Alshahrani", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S210186", "firstName": "Hassan", "lastName": "Elfokharany", "fullName": "Hassan Mohamed Elfokharany", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S250854", "firstName": "Ismail", "lastName": "Harrar", "fullName": "Ismail Harrar", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S181052", "firstName": "Kareem", "lastName": "Alhalabi", "fullName": "Kareem Haitham Alhalabi", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S250908", "firstName": "Khayal", "lastName": "Alhayek", "fullName": "Khayal Omer Alhayek", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S160741", "firstName": "Laith", "lastName": "Saleh", "fullName": "Laith Osama Saleh", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S240110", "firstName": "Majd", "lastName": "Abdulfattah", "fullName": "Majd Mohab Abdulfattah", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S190068", "firstName": "Naif", "lastName": "Alabdulwahab", "fullName": "Naif Abdulwahab Alabdulwahab", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S220986", "firstName": "Omar", "lastName": "Badawi", "fullName": "Omar Abdallah Badawi", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S200345", "firstName": "Omar", "lastName": "Al Alsheikh", "fullName": "Omar Salah Al Alsheikh", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S260470", "firstName": "Saqer", "lastName": "Alarifi", "fullName": "Saqer Khalid Alarifi", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S180602", "firstName": "Sultan", "lastName": "Nusairat", "fullName": "Sultan Ma'n Nusairat", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S170050", "firstName": "Yousef", "lastName": "Abu Dayah", "fullName": "Yousef Bilal Abu Dayah", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S222036", "firstName": "Youssef", "lastName": "Khalil", "fullName": "Youssef Abdelrafea Khalil", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S180123", "firstName": "Zaid", "lastName": "Alkayyali", "fullName": "Zaid Sami Alkayyali", "className": "7H", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-
-      // 7E (20 students)
-      {"id": "S221958", "firstName": "Abdullah", "lastName": "Alharbi", "fullName": "Abdullah Abdulrahman Alharbi", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S240521", "firstName": "Abdullah", "lastName": "Ahmad", "fullName": "Abdullah Hammad Ahmad", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S250062", "firstName": "Abdullah", "lastName": "Rafiqul", "fullName": "Abdullah Mohammad Rafiqul", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S240285", "firstName": "Abdulrahman", "lastName": "Kazi", "fullName": "Abdulrahman Mohsin Kazi", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S260263", "firstName": "Ali", "lastName": "Ansari", "fullName": "Ali Ahmad Ansari", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S260294", "firstName": "Anas", "lastName": "Mahmoud", "fullName": "Anas Mahmoud", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S221631", "firstName": "Arham", "lastName": "Uddin", "fullName": "Arham Faiz Uddin", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S250865", "firstName": "Arham", "lastName": "Ryan", "fullName": "Arham Mahmood Ryan", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S250869", "firstName": "Ayan", "lastName": "Qureshi", "fullName": "Ayan Hisham Qureshi", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S180831", "firstName": "Hanyu", "lastName": "Ma", "fullName": "Hanyu Ma", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S220507", "firstName": "Ibraheem", "lastName": "Rashid", "fullName": "Ibraheem Haroon Rashid", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S221679", "firstName": "Jarir", "lastName": "Azwar", "fullName": "Jarir Bin Azwar", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S260835", "firstName": "Muhammad", "lastName": "Ibrahim", "fullName": "Muhammad Ibrahim", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S220761", "firstName": "Muhammad", "lastName": "Kashif", "fullName": "Muhammad Hamza Kashif", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S250832", "firstName": "Muhammad", "lastName": "Saad", "fullName": "Muhammad Ibrahim Saad", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S260599", "firstName": "Muhammad", "lastName": "Sajid", "fullName": "Muhammad Ibrahim Sajid", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S222284", "firstName": "Mulham", "lastName": "Hejazi", "fullName": "Mulham Ahmad Hejazi", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S260720", "firstName": "Omar", "lastName": "Sharshir", "fullName": "Omar Sharshir", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S260695", "firstName": "Rayed", "lastName": "Sheikh", "fullName": "Rayed Sheikh", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0},
-      {"id": "S210812", "firstName": "Syed", "lastName": "Hussain", "fullName": "Syed Ali Hussain", "className": "7E", "pass": "Oqab2026!", "isTemp": true, "xp": 0}
+      { id: "S647832", firstName: "Ahmed", lastName: "Oqab", className: "Level B - Group 1", pass: "Oqab2026!", isTemp: false, xp: 180 },
+      { id: "S647833", firstName: "Omar", lastName: "Khaled", className: "Level B - Group 1", pass: "Oqab2026!", isTemp: true, xp: 65 },
+      { id: "S647834", firstName: "Youssef", lastName: "Hassan", className: "Level B - Group 2", pass: "Oqab2026!", isTemp: true, xp: 20 }
     ];
 
-    const DEFAULT_CLASSES = ["7D", "7H", "7E"];
+    const DEFAULT_CLASSES = ["Level B - Group 1", "Level B - Group 2", "Level B - Advanced"];
 
     let students = JSON.parse(localStorage.getItem('oqab_student_roster')) || DEFAULT_ROSTER;
     let classes = JSON.parse(localStorage.getItem('oqab_classes')) || DEFAULT_CLASSES;
-
-    // 3. Teacher Lock Authentication
-    document.getElementById('btn-unlock').addEventListener('click', () => {
-      const pin = document.getElementById('teacher-pin').value;
-      if (pin === teacherPassword) {
-        document.getElementById('auth-gate').hidden = true;
-        document.getElementById('dashboard-content').hidden = false;
-        syncFromCloud();
-      } else {
-        document.getElementById('pin-error').hidden = false;
-      }
-    });
-
-    document.getElementById('btn-lock').addEventListener('click', () => {
-      document.getElementById('auth-gate').hidden = false;
-      document.getElementById('dashboard-content').hidden = true;
-      document.getElementById('teacher-pin').value = '';
-    });
-
-    // 4. Cloud Sync & Automatic Population
-    async function syncFromCloud() {
-      const badge = document.getElementById('cloud-status-badge');
-      try {
-        const snapshot = await db.collection("students").get();
-        if (!snapshot.empty) {
-          const cloudStudents = [];
-          snapshot.forEach(doc => cloudStudents.push(doc.data()));
-          students = cloudStudents;
-          localStorage.setItem('oqab_student_roster', JSON.stringify(students));
-        } else {
-          // Upload all 64 students to cloud on first connection
-          for (const s of students) {
-            await db.collection("students").doc(s.id).set(s);
-          }
-          await db.collection("settings").doc("classes").set({ list: classes });
-        }
-
-        isCloudOnline = true;
-        badge.className = "cloud-status cloud-online";
-        badge.textContent = `🟢 Cloud Connected (oqab-portal) — ${students.length} Students Synced`;
-      } catch (err) {
-        isCloudOnline = false;
-        badge.className = "cloud-status cloud-offline";
-        badge.textContent = "🟡 Local Mode Active (Saved on your browser)";
-      }
-      renderDashboard();
-    }
 
     function saveState() {
       localStorage.setItem('oqab_student_roster', JSON.stringify(students));
@@ -507,26 +313,25 @@
 
       const classFilterSelect = document.getElementById('class-filter');
       const currentFilter = classFilterSelect.value;
-      classFilterSelect.innerHTML = '<option value="all">All Classes (7D, 7H, 7E)</option>' + 
-        classes.map(c => `<option value="${c}">Class ${c}</option>`).join('');
+      classFilterSelect.innerHTML = '<option value="all">All Classes</option>' + 
+        classes.map(c => `<option value="${c}">${c}</option>`).join('');
       classFilterSelect.value = currentFilter;
 
       const inputClassSelect = document.getElementById('input-class');
-      inputClassSelect.innerHTML = classes.map(c => `<option value="${c}">Class ${c}</option>`).join('');
+      inputClassSelect.innerHTML = classes.map(c => `<option value="${c}">${c}</option>`).join('');
 
       const filtered = students.filter(s => {
-        const matchesSearch = (s.id + ' ' + (s.fullName || s.firstName + ' ' + s.lastName)).toLowerCase().includes(search);
+        const matchesSearch = (s.id + ' ' + s.firstName + ' ' + s.lastName).toLowerCase().includes(search);
         const matchesClass = filterClass === 'all' || s.className === filterClass;
         return matchesSearch && matchesClass;
       });
 
       tbody.innerHTML = filtered.map((s, idx) => {
         const originalIndex = students.indexOf(s);
-        const displayName = s.fullName || `${s.firstName} ${s.lastName}`;
         return `
           <tr>
             <td><span class="badge-id">${s.id}</span></td>
-            <td><strong>${displayName}</strong></td>
+            <td><strong>${s.firstName} ${s.lastName}</strong></td>
             <td><span class="badge badge-class">${s.className}</span></td>
             <td><code>${s.pass}</code> ${s.isTemp ? '<small style="color:#d97706">(temp)</small>' : '<small style="color:#16a34a">(active)</small>'}</td>
             <td><strong>${s.xp || 0}</strong> XP</td>
@@ -540,7 +345,6 @@
       }).join('') || '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No students found.</td></tr>';
     }
 
-    // 5. Add / Edit / Delete Student
     document.getElementById('btn-add-student').addEventListener('click', () => {
       document.getElementById('modal-student-title').textContent = "Add New Student";
       document.getElementById('student-edit-index').value = "-1";
@@ -551,7 +355,7 @@
 
     function generateNextStudentId() {
       const numbers = students.map(s => parseInt(s.id.replace(/\D/g, ''))).filter(n => !isNaN(n));
-      const nextNum = (numbers.length ? Math.max(...numbers) : 260835) + 1;
+      const nextNum = (numbers.length ? Math.max(...numbers) : 647831) + 1;
       document.getElementById('input-student-id').value = 'S' + nextNum;
     }
     document.getElementById('btn-gen-id').addEventListener('click', generateNextStudentId);
@@ -561,7 +365,8 @@
       document.getElementById('modal-student-title').textContent = "Edit Student";
       document.getElementById('student-edit-index').value = index;
       document.getElementById('input-student-id').value = s.id;
-      document.getElementById('input-fullname').value = s.fullName || `${s.firstName} ${s.lastName}`;
+      document.getElementById('input-fname').value = s.firstName;
+      document.getElementById('input-lname').value = s.lastName;
       document.getElementById('input-class').value = s.className;
       document.getElementById('input-temp-pass').value = s.pass || 'Oqab2026!';
       document.getElementById('modal-student').showModal();
@@ -569,39 +374,29 @@
 
     window.deleteStudent = function(index) {
       const s = students[index];
-      if (confirm(`Delete student ${s.fullName || s.firstName} (${s.id})?`)) {
-        const idToDelete = s.id;
+      if (confirm(`Delete student ${s.firstName} ${s.lastName} (${s.id})?`)) {
         students.splice(index, 1);
         saveState();
-        if (isCloudOnline) db.collection("students").doc(idToDelete).delete().catch(()=>{});
       }
     };
 
     window.resetStudentPassword = function(index) {
-      const s = students[index];
-      const newPass = prompt(`Enter new password for ${s.fullName || s.firstName}:`, "Oqab2026!");
+      const newPass = prompt(`Enter new password for ${students[index].firstName}:`, "Oqab2026!");
       if (newPass) {
-        s.pass = newPass;
-        s.isTemp = true;
+        students[index].pass = newPass;
+        students[index].isTemp = true;
         saveState();
-        if (isCloudOnline) db.collection("students").doc(s.id).set(s, { merge: true }).catch(()=>{});
-        alert(`Password for ${s.id} reset to: ${newPass}`);
+        alert(`Password for ${students[index].id} set to: ${newPass}`);
       }
     };
 
     document.getElementById('form-student').addEventListener('submit', (e) => {
       e.preventDefault();
       const editIdx = parseInt(document.getElementById('student-edit-index').value);
-      const fullName = document.getElementById('input-fullname').value.trim();
-      const nameParts = fullName.split(' ');
-      const firstName = nameParts[0];
-      const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
-
       const studentData = {
         id: document.getElementById('input-student-id').value.toUpperCase().trim(),
-        firstName,
-        lastName,
-        fullName,
+        firstName: document.getElementById('input-fname').value.trim(),
+        lastName: document.getElementById('input-lname').value.trim(),
         className: document.getElementById('input-class').value,
         pass: document.getElementById('input-temp-pass').value.trim(),
         isTemp: true,
@@ -612,11 +407,9 @@
       else students.push(studentData);
 
       saveState();
-      if (isCloudOnline) db.collection("students").doc(studentData.id).set(studentData, { merge: true }).catch(()=>{});
       document.getElementById('modal-student').close();
     });
 
-    // 6. Manage Classes
     document.getElementById('btn-manage-classes').addEventListener('click', () => {
       renderClassList();
       document.getElementById('modal-classes').showModal();
@@ -626,20 +419,19 @@
       const ul = document.getElementById('class-list-ul');
       ul.innerHTML = classes.map((c, i) => `
         <li style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-          <span><strong>Class ${c}</strong></span>
+          <span>${c}</span>
           <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deleteClass(${i})">Remove</button>
         </li>
       `).join('');
     }
 
     document.getElementById('btn-add-class-confirm').addEventListener('click', () => {
-      const val = document.getElementById('input-new-class-name').value.trim().toUpperCase();
+      const val = document.getElementById('input-new-class-name').value.trim();
       if (val && !classes.includes(val)) {
         classes.push(val);
         document.getElementById('input-new-class-name').value = '';
         renderClassList();
         saveState();
-        if (isCloudOnline) db.collection("settings").doc("classes").set({ list: classes });
       }
     });
 
@@ -648,77 +440,42 @@
         classes.splice(index, 1);
         renderClassList();
         saveState();
-        if (isCloudOnline) db.collection("settings").doc("classes").set({ list: classes });
       }
     };
 
-    // 7. Teacher Password & Email Settings
     document.getElementById('btn-teacher-settings').addEventListener('click', () => {
+      document.getElementById('teacher-recovery-email').value = teacherEmail;
       document.getElementById('settings-msg').hidden = true;
       document.getElementById('modal-teacher-settings').showModal();
     });
 
     document.getElementById('form-teacher-settings').addEventListener('submit', (e) => {
       e.preventDefault();
-      const newPass = document.getElementById('teacher-new-pass').value.trim();
+      const newEmail = document.getElementById('teacher-recovery-email').value.trim();
+      const newPass = document.getElementById('teacher-new-pass').value;
       const msg = document.getElementById('settings-msg');
 
+      if (newEmail) {
+        teacherEmail = newEmail;
+        localStorage.setItem('oqab_teacher_email', teacherEmail);
+      }
       if (newPass) {
-        teacherPassword = newPass;
-        localStorage.setItem('oqab_teacher_pass', teacherPassword);
-        msg.textContent = "New password saved successfully!";
-        msg.style.color = "var(--green)";
-        msg.hidden = false;
-        setTimeout(() => document.getElementById('modal-teacher-settings').close(), 1000);
+        localStorage.setItem('oqab_teacher_pass', newPass);
       }
-    });
 
-    // 8. Teacher Password Recovery via Email
-    document.getElementById('btn-forgot-teacher-pass').addEventListener('click', () => {
-      document.getElementById('code-step').hidden = true;
-      document.getElementById('btn-send-code').hidden = false;
-      document.getElementById('btn-submit-reset').hidden = true;
-      document.getElementById('recovery-msg').hidden = true;
-      document.getElementById('modal-forgot-pass').showModal();
-    });
-
-    document.getElementById('btn-send-code').addEventListener('click', () => {
-      generatedResetCode = Math.floor(100000 + Math.random() * 900000).toString();
-      const mailSubject = encodeURIComponent("Oqab Academy - Teacher Password Reset Code");
-      const mailBody = encodeURIComponent(`Hello Mr. Ahmed,\n\nYour security reset code for the Teacher Dashboard is: ${generatedResetCode}\n\nEnter this code on your dashboard to set a new password.`);
-      window.open(`mailto:${teacherEmail}?subject=${mailSubject}&body=${mailBody}`, '_blank');
-
-      document.getElementById('code-step').hidden = false;
-      document.getElementById('btn-send-code').hidden = true;
-      document.getElementById('btn-submit-reset').hidden = false;
-      
-      const msg = document.getElementById('recovery-msg');
-      msg.textContent = `A verification reset email was opened for ${teacherEmail}. Verification Code: ${generatedResetCode}`;
-      msg.style.color = "var(--blue)";
+      msg.textContent = "Settings saved successfully!";
+      msg.style.color = "var(--green)";
       msg.hidden = false;
+      setTimeout(() => document.getElementById('modal-teacher-settings').close(), 1200);
     });
 
-    document.getElementById('btn-submit-reset').addEventListener('click', () => {
-      const code = document.getElementById('recovery-input-code').value.trim();
-      const newPass = document.getElementById('recovery-new-pass').value.trim();
-      if (code === generatedResetCode && newPass.length >= 6) {
-        teacherPassword = newPass;
-        localStorage.setItem('oqab_teacher_pass', teacherPassword);
-        alert("Teacher password reset successfully! You can now log in.");
-        document.getElementById('modal-forgot-pass').close();
-      } else {
-        alert("Invalid verification code or password is under 6 characters.");
-      }
-    });
-
-    // 9. Search & CSV Export
     document.getElementById('search-input').addEventListener('input', renderDashboard);
     document.getElementById('class-filter').addEventListener('change', renderDashboard);
 
     document.getElementById('btn-export-roster').addEventListener('click', () => {
       const rows = [
-        ["Student ID", "Full Name", "Class", "Password", "XP"],
-        ...students.map(s => [s.id, s.fullName || `${s.firstName} ${s.lastName}`, s.className, s.pass, s.xp || 0])
+        ["Student ID", "First Name", "Last Name", "Class", "Password", "XP"],
+        ...students.map(s => [s.id, s.firstName, s.lastName, s.className, s.pass, s.xp || 0])
       ];
       const csvContent = "\uFEFF" + rows.map(r => r.map(c => `"${c}"`).join(",")).join("\r\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -727,6 +484,35 @@
       a.download = `Oqab_Academy_Roster_${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
     });
+
+    document.getElementById('btn-import-roster').addEventListener('click', () => document.getElementById('file-import-csv').click());
+    document.getElementById('file-import-csv').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const lines = event.target.result.split('\n').filter(l => l.trim().length > 0);
+          const imported = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',').map(c => c.replace(/["\r]/g, '').trim());
+            if (cols[0] && cols) {
+              imported.push({
+                id: cols[0], firstName: cols, lastName: cols || '',
+                className: cols || 'Level B', pass: cols || 'Oqab2026!',
+                isTemp: true, xp: parseInt(cols) || 0
+              });
+            }
+          }
+          if (imported.length) { students = imported; saveState(); alert(`Imported ${imported.length} students!`); }
+        } catch (err) {
+          alert("Could not import file.");
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    renderDashboard();
   </script>
 </body>
 </html>
