@@ -1,453 +1,263 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <base href="./">
-  <meta name="description" content="Oqab Vocab Level B: 300 words, practice, games and personal progress.">
-  <title>Oqab Vocab | Level B, Units 1–15</title>
-  <link rel="stylesheet" href="styles.css?v=20260914-contact-v2">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vocabulary Portal & Teacher Dashboard</title>
   <style>
-    .login-choice-card {
-      display: grid;
-      gap: 12px;
-      margin: 20px 0;
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #16a34a;
+      --danger: #dc2626;
     }
-    .btn-choice {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 14px;
-      border-radius: 12px;
-      font-size: 1.05rem;
-      font-weight: bold;
-      cursor: pointer;
-      border: 1px solid var(--line);
-      background: white;
-      transition: 0.15s;
-    }
-    .btn-choice:hover { background: #f1f5f9; border-color: var(--blue); }
-    .btn-choice.primary { background: var(--blue); color: white; border-color: var(--blue); }
-    .btn-choice.primary:hover { background: #0369a1; }
-  </style>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 { font-size: 1.3rem; color: #60a5fa; }
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--border); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+
+    main { flex: 1; padding: 2rem; max-width: 1000px; margin: 0 auto; width: 100%; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: white;
+      margin-top: 0.4rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    input:focus { outline: 2px solid var(--primary); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 420px;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none; border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Table */
+    .table-container { overflow-x: auto; margin-top: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #0f172a; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
+    tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #0284c7;
+      color: white;
+    }
+    .stats-bar { display: flex; gap: 1rem; margin-bottom: 1rem; }
+    .stat-box { flex: 1; background: #0f172a; padding: 1rem; border-radius: 8px; border: 1px solid var(--border); }
+    .stat-box span { font-size: 0.85rem; color: var(--text-muted); display: block; }
+    .stat-box strong { font-size: 1.5rem; color: #60a5fa; }
+  </style>
 </head>
 <body>
-  <a class="skip-link" href="#main-container">Skip to activity</a>
-  <header id="main-header">
-    <div class="brand">
-      <img id="brand-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Crect width='44' height='44' rx='10' fill='%230ea5e9'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-weight='bold' font-size='20' font-family='sans-serif'%3EAO%3C/text%3E%3C/svg%3E" alt="Oqab Vocabulary Logo" width="44" height="44">
-      <div>
-        <strong>Oqab Vocab</strong>
-        <small>Level B · <span id="banner-active-unit-text">Units 1–15</span></small>
+
+  <!-- HEADER -->
+  <header>
+    <h1>Vocabulary Hub</h1>
+    <div id="authNav">
+      <button class="btn btn-outline" id="openLoginBtn">Teacher Login</button>
+      <div id="userProfile" style="display: none; align-items: center; gap: 10px;">
+        <span id="teacherEmail" style="color: #60a5fa; font-size: 0.9rem;"></span>
+        <button class="btn btn-danger" id="logoutBtn">Logout</button>
       </div>
     </div>
-    <nav aria-label="Main navigation">
-      <a class="nav-link hub-link" href="../">Oqab Academy</a>
-      <button id="global-home-btn" data-action="home">Course Home</button>
-      <button id="global-back-btn" data-action="back" hidden>Back</button>
-      <button id="zoom-out" data-action="zoom-out" aria-label="Decrease text size">A−</button>
-      <button id="zoom-reset" data-action="zoom-reset" aria-label="Reset text size">100%</button>
-      <button id="zoom-in" data-action="zoom-in" aria-label="Increase text size">A+</button>
-      <button data-action="help">Help</button>
-      <span class="header-visits" aria-label="Website visits">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5c-5.2 0-9.3 4.5-10.5 6a1.6 1.6 0 0 0 0 2C2.7 14.5 6.8 19 12 19s9.3-4.5 10.5-6a1.6 1.6 0 0 0 0-2C21.3 9.5 17.2 5 12 5Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></svg>
-        <b id="public-total-visits">…</b>
-      </span>
-      <span id="nav-user-info" hidden>
-        <span id="nav-xp">0</span> XP 
-        <button id="student-password-button" data-action="account-password">Change password</button> 
-        <button data-action="logout">Sign out</button>
-      </span>
-    </nav>
   </header>
 
-  <aside class="creator-banner" aria-label="Creator and WhatsApp contacts">
-    <div class="creator-details">
-      <strong>Created by Mr. Ahmed Oqab</strong>
-    </div>
-    <div class="contact-links">
-      <a href="https://wa.me/966599840950" target="_blank" rel="noopener noreferrer" aria-label="Chat with Mr. Ahmed Oqab on WhatsApp in Saudi Arabia, +966 59 984 0950">
-        <span class="country-flag" aria-hidden="true">🇸🇦</span>
-        <span class="contact-copy"><small>Saudi Arabia</small><b dir="ltr">+966 59 984 0950</b></span>
-        <span class="chat-label">Chat</span>
-      </a>
-      <a href="https://wa.me/201154348709" target="_blank" rel="noopener noreferrer" aria-label="Chat with Mr. Ahmed Oqab on WhatsApp in Egypt, +20 11 5434 8709">
-        <span class="country-flag" aria-hidden="true">🇪🇬</span>
-        <span class="contact-copy"><small>Egypt</small><b dir="ltr">+20 11 5434 8709</b></span>
-        <span class="chat-label">Chat</span>
-      </a>
-    </div>
-  </aside>
+  <main>
+    <!-- STUDENT PRACTICE AREA -->
+    <section id="studentSection" class="card">
+      <h2>Student Practice Area</h2>
+      <p style="color: var(--text-muted); margin-bottom: 1rem;">Complete your vocabulary activity. Results are logged automatically for your teacher.</p>
 
-  <main id="main-container" tabindex="-1">
-    <!-- View: Login (Visitor or Student Sign-In) -->
-    <section id="view-login" class="view narrow">
-      <div class="panel welcome">
-        <p class="eyebrow">300 words · Fifteen units</p>
-        <h1>Welcome to Class!</h1>
-        <p>Choose how you want to enter today:</p>
+      <label for="studentNameInput">Your Name:</label>
+      <input type="text" id="studentNameInput" placeholder="Enter your full name..." />
 
-        <!-- Mode 1: Choice Screen -->
-        <div id="login-selection-screen" class="login-choice-card">
-          <button class="btn-choice primary" id="btn-choose-student">🎓 Student Sign In (Save Progress)</button>
-          <button class="btn-choice" id="btn-choose-visitor">👤 Explore as Visitor (No Login)</button>
-        </div>
+      <label for="activitySelect">Select Activity:</label>
+      <select id="activitySelect">
+        <option value="Vocabulary Quiz - Unit 1">Vocabulary Quiz - Unit 1</option>
+        <option value="Word Matching - Unit 2">Word Matching - Unit 2</option>
+        <option value="Reading Comprehension - 8th Grade">Reading Comprehension - 8th Grade</option>
+      </select>
 
-        <!-- Mode 2: Student Sign-in with S-Number -->
-        <form id="student-login-form" hidden>
-          <div style="margin-bottom:12px">
-            <label for="login-student-id">Student ID</label>
-            <input id="login-student-id" name="login" autocomplete="username" maxlength="7" pattern="[Ss][0-9]{6}" required placeholder="e.g. S190256">
-          </div>
-          <div style="margin-bottom:14px">
-            <label for="login-password">Password</label>
-            <input id="login-password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password">
-          </div>
-          <button class="btn-choice primary" style="width:100%" type="submit">Sign In →</button>
-          
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
-            <button type="button" class="btn-sm btn-outline" id="btn-forgot-pass">Forgot Password?</button>
-            <button type="button" class="btn-sm btn-outline" id="btn-back-to-choice">← Back</button>
-          </div>
-        </form>
-
-        <p id="access-note" class="small muted" style="margin-top:16px">Visitors can practice freely. Enrolled students sign in with their S-number.</p>
-        <p id="login-error" class="error" role="alert" hidden></p>
-      </div>
-    </section>
-
-    <!-- View: Student Dashboard -->
-    <section id="view-student-dash" class="view" hidden>
-      <div class="row heading">
-        <div>
-          <p class="eyebrow">Your vocabulary journey</p>
-          <h1>Welcome, <span id="dash-greeting-name">Student</span>!</h1>
-        </div>
-        <div>
-          <label for="dash-unit-select">Active unit</label>
-          <select id="dash-unit-select">
-            <option value="1">Unit 1</option><option value="2">Unit 2</option><option value="3">Unit 3</option>
-            <option value="4">Unit 4</option><option value="5">Unit 5</option><option value="6">Unit 6</option>
-            <option value="7">Unit 7</option><option value="8">Unit 8</option><option value="9">Unit 9</option>
-            <option value="10">Unit 10</option><option value="11">Unit 11</option><option value="12">Unit 12</option>
-            <option value="13">Unit 13</option><option value="14">Unit 14</option><option value="15">Unit 15</option>
-          </select>
+      <div style="background: #0f172a; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border: 1px solid var(--border);">
+        <p><strong>Sample Question:</strong> What is the synonym of <em>"Abundant"</em>?</p>
+        <div style="margin-top: 0.5rem;">
+          <input type="radio" name="vocabQ" id="qA" value="Plentiful" style="width: auto; margin-right: 6px;"> <label for="qA">Plentiful</label><br/>
+          <input type="radio" name="vocabQ" id="qB" value="Scarce" style="width: auto; margin-right: 6px;"> <label for="qB">Scarce</label><br/>
+          <input type="radio" name="vocabQ" id="qC" value="Tiny" style="width: auto; margin-right: 6px;"> <label for="qC">Tiny</label>
         </div>
       </div>
-      <div class="stats">
-        <div><strong id="dash-xp">0</strong><span>Total XP</span></div>
-        <div><strong id="dash-mastered">0 / 20</strong><span>Words mastered</span></div>
-        <div><strong id="dash-current-unit-badge">Unit 1</strong><span>Target unit</span></div>
-        <div><strong id="dash-games-won">0</strong><span>Games completed</span></div>
-        <div><strong id="dash-personal-visits">1</strong><span>My visits</span></div>
-      </div>
-      <div class="panel goals">
-        <strong>Unit goals</strong>
-        <p>Explain each word • Use it in a new sentence • Recognise valid word relationships</p>
-        <small>Mastery requires three correct answers in a row, across at least two skills and two attempts.</small>
-      </div>
-      <div id="resume-box" class="notice" hidden>
-        <span id="resume-label"></span>
-        <button data-action="resume">Continue saved practice</button>
-      </div>
-      <div class="activity-cards">
-        <article class="panel activity green">
-          <span class="activity-icon" aria-hidden="true">📖</span>
-          <h2>1. Study Deeply</h2>
-          <p>Explore meanings, examples, visuals, common phrases, and usage notes.</p>
-          <button data-action="study">Read & Explore</button>
-        </article>
-        <article class="panel activity blue">
-          <span class="activity-icon" aria-hidden="true">▤</span>
-          <h2>2. Flashcards</h2>
-          <p>Recall each meaning, flip to check, and mark words for another review.</p>
-          <button data-action="flashcards">Flip Cards</button>
-        </article>
-        <article class="panel activity purple">
-          <span class="activity-icon" aria-hidden="true">🎯</span>
-          <h2>3. Play Games</h2>
-          <p>Word–Meaning Match, clue-based Word Search, and Context Challenge.</p>
-          <button data-action="games">Enter Arcade</button>
-        </article>
-        <article class="panel activity amber">
-          <span class="activity-icon" aria-hidden="true">✍️</span>
-          <h2>4. Homework Quiz</h2>
-          <p>Three mixed quizzes. Every quiz tests all 20 words using new questions.</p>
-          <button data-action="quiz-menu">Choose Quiz</button>
-        </article>
-        <article class="panel activity rose">
-          <span class="activity-icon" aria-hidden="true">↻</span>
-          <h2>Review My Words</h2>
-          <p id="review-description">Revisit mistakes, flagged flashcards, and words due for practice.</p>
-          <button data-action="review">Start Review</button>
-        </article>
-        <article class="panel activity teal">
-          <span class="activity-icon" aria-hidden="true">📈</span>
-          <h2>My Progress</h2>
-          <p>See word mastery, previous results, and download a report to share.</p>
-          <button data-action="progress">View Progress</button>
-        </article>
-      </div>
+
+      <button class="btn btn-success" id="submitActivityBtn">Submit Activity</button>
+      <p id="studentMsg" style="margin-top: 0.75rem; font-weight: bold;"></p>
     </section>
 
-    <!-- Activity Sections -->
-    <section id="view-study-deeply" class="view" hidden>
-      <div class="heading">
-        <p class="eyebrow" id="study-active-unit-text"></p>
-        <h1>Study Deeply</h1>
-        <p>Notice the meaning, the common phrase, and the example before you practise.</p>
-        <label for="study-search">Find a word in this unit</label>
-        <input type="search" id="study-search" placeholder="Type a word or part of its meaning">
+    <!-- TEACHER DASHBOARD (HIDDEN UNTIL LOGGED IN) -->
+    <section id="dashboardSection" class="card" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2>Teacher Dashboard (Student Activity Records)</h2>
+        <button class="btn btn-outline" id="refreshBtn">↻ Refresh Data</button>
       </div>
-      <div id="study-list-container"></div>
-      <button id="study-finish" class="primary full" data-action="study-finish">Finish study session</button>
-    </section>
 
-    <section id="view-flashcards" class="view narrow-wide" hidden>
-      <div class="row heading">
-        <h1>Flashcards</h1>
-        <strong id="fc-counter"></strong>
-      </div>
-      <div class="row controls">
-        <label>Show first 
-          <select id="fc-direction">
-            <option value="word">Word</option>
-            <option value="meaning">Meaning</option>
-          </select>
-        </label>
-        <label class="check"><input id="fc-show-visual" type="checkbox"> Show visual hint</label>
-        <button data-action="fc-shuffle">Shuffle</button>
-      </div>
-      <div id="flashcard-inner" class="panel flashcard" data-action="fc-flip" role="button" tabindex="0" aria-expanded="false">
-        <div id="fc-front"></div>
-        <div id="fc-back" hidden></div>
-        <span class="small muted">Select the card or press Enter to flip.</span>
-      </div>
-      <div class="row controls">
-        <button data-action="fc-audio" aria-label="Listen to the current word">🔊 Listen</button>
-        <span id="fc-ipa" class="muted"></span>
-        <button data-action="fc-prev" id="fc-prev">← Previous</button>
-        <button data-action="fc-next" id="fc-next">Next →</button>
-      </div>
-      <div id="fc-rating" class="row controls" hidden>
-        <button class="success" data-action="fc-known">Know it ✓</button>
-        <button data-action="fc-again">Review again ↻</button>
-      </div>
-      <p id="fc-feedback" role="status"></p>
-      <button class="primary" data-action="fc-finish">Finish flashcards</button>
-    </section>
-
-    <section id="view-games-hub" class="view" hidden>
-      <p class="eyebrow" id="arcade-unit-badge"></p>
-      <h1>Games Arcade</h1>
-      <div class="activity-cards games">
-        <article class="panel activity purple">
-          <span class="activity-icon">🧩</span>
-          <h2>Word–Meaning Match</h2>
-          <p>Match all 20 words in three rounds: 8, 8, and 4 pairs. Accuracy counts.</p>
-          <button data-action="match">Play Match</button>
-        </article>
-        <article class="panel activity rose">
-          <span class="activity-icon">🔎</span>
-          <h2>Word Search</h2>
-          <p>Solve clues, then find the words in all eight directions.</p>
-          <button data-action="ws-menu">Find Words</button>
-        </article>
-        <article class="panel activity amber">
-          <span class="activity-icon">💬</span>
-          <h2>Context Challenge</h2>
-          <p>Use new sentences to practise all 20 words. Choose practice A, B, or C.</p>
-          <button data-action="context-menu">Choose Challenge</button>
-        </article>
-      </div>
-    </section>
-
-    <section id="view-game-matching" class="view" hidden>
-      <div class="row heading">
-        <div><h1>Word–Meaning Match</h1><p id="match-round"></p></div>
-        <strong id="match-score"></strong>
-      </div>
-      <div id="match-grid" class="match-grid"></div>
-      <p id="match-feedback" class="feedback" role="status"></p>
-      <button id="match-next" class="primary" data-action="match-next" hidden>Next round</button>
-    </section>
-
-    <section id="view-game-wordsearch" class="view" hidden>
-      <div class="row heading">
-        <div><h1>Word Search</h1><p id="ws-section-badge"></p></div>
-        <button data-action="ws-menu">New puzzle</button>
-      </div>
-      <label class="check"><input type="checkbox" id="ws-large"> Larger grid cells</label>
-      <div class="ws-layout">
-        <div class="panel ws-wrap"><div id="ws-grid" class="ws-grid" role="grid" aria-label="Word-search letters"></div></div>
-        <div class="panel">
-          <div class="row"><h2>Clues</h2><strong id="ws-count"></strong></div>
-          <div id="ws-word-list"></div>
-          <p class="small muted" id="ws-hint-cost">A hint reveals the word and its first square. Each hint reduces puzzle XP by 3.</p>
+      <div class="stats-bar">
+        <div class="stat-box">
+          <span>Total Submissions</span>
+          <strong id="totalSubmissions">0</strong>
+        </div>
+        <div class="stat-box">
+          <span>Active Students</span>
+          <strong id="totalStudents">0</strong>
         </div>
       </div>
-      <p id="ws-feedback" class="feedback" role="status"></p>
-      <button id="ws-finish" class="primary" data-action="ws-finish" hidden>View puzzle results</button>
-    </section>
 
-    <section id="view-quiz" class="view narrow-wide" hidden>
-      <div class="row heading">
-        <div><p class="eyebrow" id="quiz-variant-label"></p><h1 id="quiz-title">Homework Quiz</h1></div>
-        <strong id="quiz-counter"></strong>
-      </div>
-      <progress id="quiz-progress-bar" value="0" max="20" aria-label="Questions answered"></progress>
-      <div class="panel question">
-        <p id="quiz-instruction" class="eyebrow"></p>
-        <h2 id="quiz-question"></h2>
-        <div id="quiz-options-container" class="options"></div>
-        <div id="quiz-feedback-area" class="feedback" role="status"></div>
-        <button id="quiz-next-btn" class="primary full" data-action="question-next" hidden>Next question →</button>
-      </div>
-    </section>
+      <input type="text" id="filterStudentInput" placeholder="Search student by name..." />
 
-    <section id="view-results" class="view narrow-wide" hidden>
-      <div class="panel results">
-        <span class="activity-icon" aria-hidden="true">🏆</span>
-        <p class="eyebrow" id="results-unit"></p>
-        <h1 id="results-title"></h1>
-        <p id="results-message"></p>
-        <div class="stats result-stats">
-          <div><strong id="results-score"></strong><span>Result</span></div>
-          <div><strong id="results-xp"></strong><span>XP earned</span></div>
-        </div>
-        <div class="row controls">
-          <button class="primary" data-action="home">Back to Dashboard</button>
-          <button id="results-review" data-action="result-review">Practise missed words</button>
-          <button data-action="result-copy">Copy result</button>
-          <button data-action="result-download">Download result</button>
-        </div>
-        <div id="result-copy-box" hidden>
-          <label for="result-copy-text">Select and copy this result</label>
-          <textarea id="result-copy-text" readonly rows="6"></textarea>
-        </div>
-      </div>
-      <div id="results-details"></div>
-    </section>
-
-    <section id="view-progress" class="view" hidden>
-      <div class="row heading">
-        <div><h1>My Progress</h1><p>Progress is personal to your student account.</p></div>
-        <div class="controls row">
-          <button data-action="export-progress">Download progress CSV</button>
-          <button data-action="export-history">Download history CSV</button>
-          <button data-action="export-backup">Download backup</button>
-        </div>
-      </div>
-      <div id="progress-summary" class="stats"></div>
-      <h2>Words in this unit</h2>
-      <div class="table-wrap">
+      <div class="table-container">
         <table>
-          <thead><tr><th>Word</th><th>Status</th><th>Correct / answered</th><th>Next review</th></tr></thead>
-          <tbody id="progress-words"></tbody>
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Activity / Task</th>
+              <th>Score / Result</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody">
+            <tr><td colspan="4" style="text-align: center;">No records found yet.</td></tr>
+          </tbody>
         </table>
-      </div>
-      <h2>Recent results</h2>
-      <div id="progress-history"></div>
-    </section>
-
-    <section id="view-help" class="view narrow-wide" hidden>
-      <div class="panel">
-        <h1>Learning guide</h1>
-        <ol>
-          <li>Study words and notice how they are used.</li>
-          <li>Recall meanings before flipping flashcards.</li>
-          <li>Complete quizzes to demonstrate mastery.</li>
-        </ol>
-        <button class="primary" data-action="home">Return to course home</button>
       </div>
     </section>
   </main>
 
-  <!-- Dialog: Student Password Change on First Login -->
-  <dialog id="password-change-dialog" aria-labelledby="password-change-title">
-    <form id="student-password-form">
-      <h2 id="password-change-title">Create your private password</h2>
-      <p id="password-change-note">Welcome! Since this is your first sign-in, please set your private password.</p>
-      <label for="student-new-password">New private password</label>
-      <input id="student-new-password" type="password" autocomplete="new-password" minlength="6" required placeholder="At least 6 characters">
-      <label for="student-confirm-password">Confirm new password</label>
-      <input id="student-confirm-password" type="password" autocomplete="new-password" minlength="6" required placeholder="Repeat new password">
-      <p id="password-change-error" class="error" role="alert" hidden></p>
-      <div class="row controls" style="margin-top:16px">
-        <button class="primary" type="submit">Save Private Password</button>
+  <!-- TEACHER LOGIN MODAL -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <button class="modal-close" id="closeLoginModal">&times;</button>
+      <h3 style="margin-bottom: 1rem;">Teacher Login</h3>
+      
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="ahmed.okap2@gmail.com" />
+
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter password" />
+
+      <button class="btn btn-primary" id="loginSubmitBtn" style="width: 100%; margin-top: 0.5rem;">Sign In</button>
+      
+      <div style="margin-top: 1rem; text-align: center;">
+        <button id="forgotPasswordBtn" style="background:none; border:none; color: #60a5fa; cursor: pointer; text-decoration: underline;">Forgot Password?</button>
       </div>
-    </form>
-  </dialog>
-
-  <!-- Dialog: Student Forgot Password (Ask Teacher) -->
-  <dialog id="student-forgot-dialog" aria-labelledby="student-forgot-title">
-    <div>
-      <h2 id="student-forgot-title">Forgot Password?</h2>
-      <p>Enter your Student ID (S-number) to send a reset request directly to Mr. Ahmed Oqab on WhatsApp:</p>
-      <div style="margin-bottom:12px">
-        <input type="text" id="forgot-student-id-input" placeholder="e.g. S190256" maxlength="7">
-      </div>
-      <div class="row controls">
-        <button class="btn btn-primary" id="btn-send-whatsapp-teacher">💬 WhatsApp Mr. Ahmed</button>
-        <button class="btn btn-outline" type="button" data-action="close-dialog">Cancel</button>
-      </div>
+      <p id="loginError" style="color: var(--danger); margin-top: 0.5rem; font-size: 0.9rem; text-align: center;"></p>
     </div>
-  </dialog>
+  </div>
 
-  <!-- Dialogs: Modals for Quizzes & Word Search -->
-  <dialog id="modal-variant" aria-labelledby="variant-modal-title">
-    <div class="row">
-      <h2 id="variant-modal-title">Choose a quiz</h2>
-      <button data-action="close-dialog" aria-label="Close dialog">✕</button>
+  <!-- PASSWORD RESET MODAL -->
+  <div class="modal-overlay" id="resetModal">
+    <div class="modal">
+      <button class="modal-close" id="closeResetModal">&times;</button>
+      <h3 style="margin-bottom: 1rem;">Reset Teacher Password</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+        Enter your registered email. A secure password reset link will be sent to your inbox by Google.
+      </p>
+
+      <label>Your Email Address</label>
+      <input type="email" id="resetEmailInput" value="ahmed.okap2@gmail.com" />
+
+      <button class="btn btn-primary" id="sendResetBtn" style="width: 100%;">Send Secure Reset Email</button>
+      <p id="resetStatusMsg" style="margin-top: 0.75rem; font-size: 0.9rem;"></p>
     </div>
-    <p id="variant-description"></p>
-    <div id="variant-buttons" class="stack"></div>
-  </dialog>
+  </div>
 
-  <dialog id="modal-ws-section" aria-labelledby="ws-modal-title">
-    <div class="row">
-      <h2 id="ws-modal-title">Choose a word search</h2>
-      <button data-action="close-dialog" aria-label="Close dialog">✕</button>
-    </div>
-    <label for="ws-difficulty">Grid size</label>
-    <select id="ws-difficulty">
-      <option value="15">Standard · 15 × 15</option>
-      <option value="17">Challenge · 17 × 17</option>
-    </select>
-    <div class="stack">
-      <button data-action="ws-start" data-section="1">Section 1 · Words 1–10</button>
-      <button data-action="ws-start" data-section="2">Section 2 · Words 11–20</button>
-    </div>
-  </dialog>
+  <!-- FIREBASE MODULE SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { 
+      getAuth, 
+      signInWithEmailAndPassword, 
+      sendPasswordResetEmail, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      serverTimestamp, 
+      query, 
+      orderBy, 
+      onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-
-  <!-- Scripts -->
-  <script src="vocabulary.js"></script>
-  <script src="practice.js"></script>
-  <script src="audio.js"></script>
-  <script src="units-6-7.js"></script>
-  <script src="unit-8.js"></script>
-  <script src="unit-9.js"></script>
-  <script src="unit-10.js"></script>
-  <script src="unit-11.js"></script>
-  <script src="unit-12.js"></script>
-  <script src="unit-13.js"></script>
-  <script src="unit-14.js"></script>
-  <script src="unit-15.js"></script>
-  <script src="app.js"></script>
-  <script src="activities.js"></script>
-  <script src="wordsearch.js"></script>
-  <script src="ui.js"></script>
-
-  <!-- Authentication & Visitor Script -->
-  <script>
-    // Firebase Config
+    // Your exact Firebase project config
     const firebaseConfig = {
       apiKey: "AIzaSyAVBpkM7N6fLgtLk178OIBHo9T28kQ8QU0",
       authDomain: "oqab-portal.firebaseapp.com",
@@ -456,134 +266,152 @@
       messagingSenderId: "728610451913",
       appId: "1:728610451913:web:8d1d852685ee80f429b818"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
 
-    // Roster fallback
-    let roster = JSON.parse(localStorage.getItem('oqab_student_roster')) || [];
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    // Switch between Choice screen and Student Sign-in
-    document.getElementById('btn-choose-student').addEventListener('click', () => {
-      document.getElementById('login-selection-screen').hidden = true;
-      document.getElementById('student-login-form').hidden = false;
-    });
+    // Modal toggles
+    const loginModal = document.getElementById("loginModal");
+    const resetModal = document.getElementById("resetModal");
+    document.getElementById("openLoginBtn").onclick = () => loginModal.style.display = "flex";
+    document.getElementById("closeLoginModal").onclick = () => loginModal.style.display = "none";
+    document.getElementById("closeResetModal").onclick = () => resetModal.style.display = "none";
+    document.getElementById("forgotPasswordBtn").onclick = () => {
+      loginModal.style.display = "none";
+      resetModal.style.display = "flex";
+    };
 
-    document.getElementById('btn-back-to-choice').addEventListener('click', () => {
-      document.getElementById('login-selection-screen').hidden = false;
-      document.getElementById('student-login-form').hidden = true;
-    });
-
-    // 1. Visitor / Guest Mode
-    document.getElementById('btn-choose-visitor').addEventListener('click', () => {
-      currentUser = {
-        firstName: "Visitor",
-        lastName: "",
-        userKey: "visitor_guest",
-        xp: 0,
-        gamesCompleted: 0,
-        unit: 1,
-        sequence: 0,
-        progress: {},
-        history: [],
-        isVisitor: true
-      };
-      navigate('student-dash');
-    });
-
-    // 2. Student Sign In with S-Number
-    document.getElementById('student-login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const sId = document.getElementById('login-student-id').value.trim().toUpperCase();
-      const pass = document.getElementById('login-password').value.trim();
-      const errEl = document.getElementById('login-error');
-      errEl.hidden = true;
-
-      // Check Cloud Firestore first, fallback to local roster
-      let student = null;
+    // SECURE PASSWORD RESET
+    document.getElementById("sendResetBtn").onclick = async () => {
+      const email = document.getElementById("resetEmailInput").value.trim();
+      const statusMsg = document.getElementById("resetStatusMsg");
+      if (!email) {
+        statusMsg.style.color = "var(--danger)";
+        statusMsg.innerText = "Please enter your email.";
+        return;
+      }
       try {
-        const doc = await db.collection("students").doc(sId).get();
-        if (doc.exists) student = doc.data();
-      } catch (err) {}
-
-      if (!student) {
-        student = roster.find(s => s.id === sId);
+        await sendPasswordResetEmail(auth, email);
+        statusMsg.style.color = "var(--success)";
+        statusMsg.innerText = "✓ Reset link sent! Check your email inbox (and spam folder) at " + email;
+      } catch (err) {
+        statusMsg.style.color = "var(--danger)";
+        statusMsg.innerText = err.message;
       }
+    };
 
-      if (!student) {
-        errEl.textContent = `Student ID ${sId} not found in the class roster. Check your S-number or explore as Visitor.`;
-        errEl.hidden = false;
-        return;
+    // TEACHER LOGIN
+    document.getElementById("loginSubmitBtn").onclick = async () => {
+      const email = document.getElementById("loginEmail").value.trim();
+      const pass = document.getElementById("loginPassword").value;
+      const errorMsg = document.getElementById("loginError");
+      errorMsg.innerText = "";
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        loginModal.style.display = "none";
+      } catch (err) {
+        errorMsg.innerText = "Invalid credentials: " + err.message;
       }
+    };
 
-      if (student.pass !== pass) {
-        errEl.textContent = "Incorrect password. Click 'Forgot Password?' to ask your teacher.";
-        errEl.hidden = false;
-        return;
-      }
+    // LOGOUT
+    document.getElementById("logoutBtn").onclick = async () => {
+      await signOut(auth);
+    };
 
-      // Success: Log in student without typing their name
-      const key = 'ao_user_' + sId.toLowerCase();
-      currentUser = userProfile(readJSON(key, null), student.firstName, student.lastName, key);
-      currentUser.studentId = student.id;
-      currentUser.fullName = student.fullName || `${student.firstName} ${student.lastName}`;
-      currentUser.className = student.className;
-      currentUnit = currentUser.unit || 1;
-      saveUser();
-
-      // If first-time login (temporary password), require password change
-      if (student.isTemp) {
-        window.pendingStudentToUpdate = student;
-        document.getElementById('password-change-dialog').showModal();
+    // AUTH STATE LISTENER (Shows Dashboard when logged in)
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("openLoginBtn").style.display = "none";
+        document.getElementById("userProfile").style.display = "flex";
+        document.getElementById("teacherEmail").innerText = user.email;
+        document.getElementById("dashboardSection").style.display = "block";
+        subscribeToActivityRecords();
       } else {
-        navigate('student-dash');
+        document.getElementById("openLoginBtn").style.display = "inline-block";
+        document.getElementById("userProfile").style.display = "none";
+        document.getElementById("dashboardSection").style.display = "none";
       }
     });
 
-    // 3. Save Private Password on First Login
-    document.getElementById('student-password-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const p1 = document.getElementById('student-new-password').value;
-      const p2 = document.getElementById('student-confirm-password').value;
-      const err = document.getElementById('password-change-error');
+    // STUDENT SUBMISSION (Saves to Firestore Database)
+    document.getElementById("submitActivityBtn").onclick = async () => {
+      const studentName = document.getElementById("studentNameInput").value.trim();
+      const activity = document.getElementById("activitySelect").value;
+      const selected = document.querySelector('input[name="vocabQ"]:checked');
+      const studentMsg = document.getElementById("studentMsg");
 
-      if (p1 !== p2) {
-        err.textContent = "Passwords do not match.";
-        err.hidden = false;
+      if (!studentName) {
+        studentMsg.style.color = "var(--danger)";
+        studentMsg.innerText = "Please enter your name.";
+        return;
+      }
+      if (!selected) {
+        studentMsg.style.color = "var(--danger)";
+        studentMsg.innerText = "Please select an answer.";
         return;
       }
 
-      const s = window.pendingStudentToUpdate;
-      if (s) {
-        s.pass = p1;
-        s.isTemp = false;
-        // Update local roster
-        const idx = roster.findIndex(r => r.id === s.id);
-        if (idx >= 0) roster[idx] = s;
-        localStorage.setItem('oqab_student_roster', JSON.stringify(roster));
+      const score = (selected.value === "Plentiful") ? "100% (Correct)" : "0% (Incorrect)";
 
-        // Sync new password to Teacher Cloud
-        try {
-          await db.collection("students").doc(s.id).set(s, { merge: true });
-        } catch (e) {}
-
-        document.getElementById('password-change-dialog').close();
-        navigate('student-dash');
+      try {
+        await addDoc(collection(db, "student_activity"), {
+          studentName: studentName,
+          activity: activity,
+          score: score,
+          timestamp: serverTimestamp()
+        });
+        studentMsg.style.color = "var(--success)";
+        studentMsg.innerText = "✓ Great job, " + studentName + "! Your activity has been logged.";
+      } catch (err) {
+        studentMsg.style.color = "var(--danger)";
+        studentMsg.innerText = "Error submitting: " + err.message;
       }
-    });
+    };
 
-    // 4. Student Forgot Password ➔ Direct WhatsApp to Teacher
-    document.getElementById('btn-forgot-pass').addEventListener('click', () => {
-      document.getElementById('student-forgot-dialog').showModal();
-    });
+    // REAL-TIME ACTIVITY LISTENER FOR TEACHER DASHBOARD
+    let allRecords = [];
+    function subscribeToActivityRecords() {
+      const q = query(collection(db, "student_activity"), orderBy("timestamp", "desc"));
+      onSnapshot(q, (snapshot) => {
+        allRecords = [];
+        snapshot.forEach((doc) => allRecords.push(doc.data()));
+        renderRecords(allRecords);
+      }, (err) => {
+        console.error("Firestore read error:", err);
+      });
+    }
 
-    document.getElementById('btn-send-whatsapp-teacher').addEventListener('click', () => {
-      const sId = document.getElementById('forgot-student-id-input').value.trim().toUpperCase();
-      const s = roster.find(x => x.id === sId);
-      const studentName = s ? (s.fullName || s.firstName) : "Student";
-      const message = encodeURIComponent(`Hello Mr. Ahmed,\n\nI forgot my password for Oqab Vocab.\nMy Student ID is: ${sId || '[My S-Number]'}\nName: ${studentName}\n\nPlease help me reset my password.`);
-      window.open(`https://wa.me/966599840950?text=${message}`, '_blank');
-      document.getElementById('student-forgot-dialog').close();
-    });
+    function renderRecords(records) {
+      const tbody = document.getElementById("recordsTableBody");
+      const filterText = document.getElementById("filterStudentInput").value.toLowerCase();
+      const filtered = records.filter(r => (r.studentName || "").toLowerCase().includes(filterText));
+
+      document.getElementById("totalSubmissions").innerText = records.length;
+      const uniqueStudents = new Set(records.map(r => r.studentName));
+      document.getElementById("totalStudents").innerText = uniqueStudents.size;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='4' style='text-align: center; color: var(--text-muted);'>No matching records found.</td></tr>";
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        const timeStr = item.timestamp ? item.timestamp.toDate().toLocaleString() : "Just now";
+        return `
+          <tr>
+            <td><strong>${item.studentName}</strong></td>
+            <td>${item.activity}</td>
+            <td><span class="badge">${item.score}</span></td>
+            <td style="color: var(--text-muted); font-size: 0.9rem;">${timeStr}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    document.getElementById("filterStudentInput").oninput = () => renderRecords(allRecords);
+    document.getElementById("refreshBtn").onclick = () => renderRecords(allRecords);
   </script>
 </body>
 </html>
