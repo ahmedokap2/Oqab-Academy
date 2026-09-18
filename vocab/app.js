@@ -1,23 +1,9 @@
 // Shared state and persistence. All learning data stays in this browser.
 'use strict';
-const $ = id => document.getElementById(id);
-const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const clone = value => JSON.parse(JSON.stringify(value));
-const CAMBRIDGE_MEDIA_ROOT = 'https://dictionary.cambridge.org/media/english/';
-// Cambridge retains legacy filenames for these Unit 6–15 recordings.
-// Verified against each word's Cambridge Dictionary entry on 2026-09-13.
-const CAMBRIDGE_IRREGULAR_AUDIO_PATHS = Object.freeze({
-  inimitable:'us_pron/e/eus/eus72/eus72429.mp3',vengeance:'us_pron/e/eus/eus74/eus74820.mp3',perjury:'us_pron/e/eus/eus73/eus73508.mp3',
-  decrease:'us_pron/e/eus/eus71/eus71175.mp3',disputatious:'us_pron/u/usd/usdis/usdisin028.mp3',evict:'us_pron/e/eus/eus71/eus71685.mp3',
-  insubordinate:'us_pron/e/eus/eus72/eus72455.mp3',nub:'us_pron/u/usn/usnub/usnub__001.mp3',onslaught:'us_pron/e/eus/eus75/eus75219.mp3',
-  ordain:'us_pron/e/eus/eus75/eus75278.mp3',outstrip:'us_pron/e/eus/eus75/eus75382.mp3',canvass:'us_pron/c/can/canva/canvas.mp3',
-  downtrodden:'us_pron/u/usd/usdow/usdownt001.mp3',ordeal:'us_pron/e/eus/eus75/eus75279.mp3',parch:'us_pron/c/cdo/cdo03/cdo0318usparc3551.mp3',
-  beneficiary:'us_pron/e/eus/eus70/eus70508.mp3',mull:'us_pron/u/usm/usmuc/usmucku013.mp3',overture:'us_pron/e/eus/eus75/eus75445.mp3',
-  pact:'us_pron/p/pac/packe/packed.mp3',heartrending:'us_pron/u/ush/ushea/usheart008.mp3',blurt:'us_pron/u/usc/uscld/uscld00103.mp3',
-  enchant:'us_pron/e/eus/eus75/eus75684.mp3',handicraft:'us_pron/u/ush/usham/ushamha012.mp3',hilarious:'us_pron/e/eus/eus72/eus72219.mp3',
-  impostor:'us_pron/i/imp/impos/imposter.mp3',oppress:'us_pron/e/eus/eus75/eus75248.mp3',indisposed:'us_pron/u/usi/usind/usindia011.mp3',
-  officiate:'us_pron/e/eus/eus75/eus75175.mp3',rite:'us_pron/r/rig/right/right.mp3',sagacious:'us_pron/u/uss/ussac/ussackc025.mp3'
-});
+
+import { $, escapeHTML, clone, number } from '../utils.js';
+import { CAMBRIDGE_MEDIA_ROOT, CAMBRIDGE_IRREGULAR_AUDIO_PATHS } from './audioData.js';
+
 function cambridgeAudioPath(word){
   const key=String(word||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z]/g,'');
   if(!key)return '';
@@ -42,7 +28,6 @@ function alertCustom(message){$('toast').textContent=message;$('toast').hidden=f
 function rawRead(key){if(temporaryStorage.has(key))return temporaryStorage.get(key);try{return localStorage.getItem(key);}catch{storageOK=false;return null;}}
 function rawWrite(key,value){temporaryStorage.set(key,value);try{localStorage.setItem(key,value);return true;}catch{storageOK=false;return false;}}
 function readJSON(key,fallback){const raw=rawRead(key);if(raw===null)return clone(fallback);try{return JSON.parse(raw);}catch{rawWrite(key+'_recovery',raw);alertCustom('A saved record could not be read. Your other words remain available.');return clone(fallback);}}
-function number(value){return Number.isFinite(Number(value))?Math.max(0,Number(value)):0;}
 function newProgress(){return {correct:0,wrong:0,streak:0,recent:[],due:0,last:0,flagged:false,seen:false};}
 function userProfile(saved,first,last,key){
   const s=saved&&typeof saved==='object'?saved:{};
@@ -67,7 +52,7 @@ async function loginAsStudent(){
   // Preserve legacy totals; migrate this student's earlier activity log once.
   if(!currentUser.history.length){const legacy=readJSON('ao_logs',[]);if(Array.isArray(legacy))currentUser.history=legacy.filter(r=>r?.student?.toLowerCase()===(first+' '+last).toLowerCase()).map((r,i)=>({id:'legacy-'+i,label:String(r.activity||'Earlier activity'),time:Number.isFinite(Date.parse(r.date))?Date.parse(r.date):0,unit:number(r.unit),score:String(r.score||''),xp:0,kind:'legacy',answers:[]})).slice(0,200);}
     rawWrite('ao_active_profile',JSON.stringify({key:currentUser.userKey,restricted:!!currentUser.studentId}));saveUser();navigate('student-dash');return true;
-  }catch(error){$('login-error').textContent=error.message||'Login could not be completed.';$('login-error').hidden=false;return false;}finally{$('login-submit').disabled=false;$('login-submit').textContent='Start Learning →';}
+  }catch(error){$('login-error').textContent=error.message\vert{}\vert{}'Login could not be completed.';$('login-error').hidden=false;return false;}finally{$('login-submit').disabled=false;$('login-submit').textContent='Start Learning →';}
 }
 async function logout(){pausePractice();saveUser();stopAudio();activeRun=null;fcRun=null;matchRun=null;wsRun=null;lastResult=null;const wasStudent=!!currentUser?.studentId;currentUser=null;try{localStorage.removeItem('ao_active_profile');}catch{}temporaryStorage.delete('ao_active_profile');if(wasStudent&&window.learningCloud?.studentLogout)await window.learningCloud.studentLogout().catch(()=>{});$('login-fname').value='';$('login-lname').value='';$('login-student-id').value='';if($('login-password'))$('login-password').value='';navigate('login');}
 async function restoreSignedInStudent(session){
@@ -171,3 +156,35 @@ function csvCell(value){let s=String(value??'');if(/^[=+@\-\t\r]/.test(s))s="'"+
 function exportCSV(name,rows){downloadFile(name,'\ufeff'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n'),'text/csv;charset=utf-8');}
 function copyResult(){const text=resultText();$('result-copy-text').value=text;$('result-copy-box').hidden=false;const finish=()=>{$('result-copy-text').focus();$('result-copy-text').select();};if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>alertCustom('Result copied. Paste it into your message.')).catch(finish);else finish();}
 function downloadResult(){const r=lastResult;exportCSV('Vocabulary-Unit-'+r.unit+'-Result.csv',[['Student',currentUser.firstName+' '+currentUser.lastName],['Activity',r.label],['Unit',r.unit],['Result',r.score],['XP',r.xp],['Date',new Date(r.time).toISOString()],[],['Word','Question','Your answer','Correct','Explanation'],...(r.answers||[]).map(a=>[a.word,a.prompt,a.chosen,a.correct?'Yes':'No',a.explanation])]);}
+
+// --- GLOBAL EXPORTS ---
+// Exposing functions and variables to the window object ensures that 
+// inline HTML events and external exercise scripts continue to work 
+// seamlessly now that this file is a module.
+
+window.loginAsStudent = loginAsStudent;
+window.logout = logout;
+window.restoreSignedInStudent = restoreSignedInStudent;
+window.restorePublicProfile = restorePublicProfile;
+window.playAudio = playAudio;
+window.changeZoom = changeZoom;
+window.resetZoom = resetZoom;
+window.navigate = navigate;
+window.handleLogoClick = handleLogoClick;
+window.goBack = goBack;
+window.changeUnitFromDropdown = changeUnitFromDropdown;
+window.resumePractice = resumePractice;
+window.copyResult = copyResult;
+window.downloadResult = downloadResult;
+window.currentUser = currentUser;
+window.currentUnit = currentUnit;
+window.activeRun = activeRun;
+window.lastResult = lastResult;
+window.vocabData = vocabData;
+window.byWord = byWord;
+window.catalog = catalog;
+window.availableUnits = availableUnits;
+window.finishRun = finishRun;
+window.recordLearning = recordLearning;
+window.makeAttempt = makeAttempt;
+window.shuffleArray = shuffleArray;
