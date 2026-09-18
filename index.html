@@ -2,119 +2,665 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Oqab Academy — vocabulary lessons, games, quizzes, student progress, and English private lessons.">
-  <title>Oqab Academy</title>
-  <link rel="stylesheet" href="./hub.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Oqab Academy — Teacher Control Panel">
+  <title>Teacher Dashboard | Oqab Academy</title>
   <style>
-    .header-visits-badge {
+    :root {
+      --ink: #102235;
+      --paper: #f8fafc;
+      --card: #ffffff;
+      --blue: #0284c7;
+      --blue-hover: #0369a1;
+      --green: #16a34a;
+      --red: #dc2626;
+      --border: #e2e8f0;
+      --muted: #64748b;
+      font-family: Calibri, system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.5; }
+    
+    header {
+      background: #102235;
+      color: white;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--blue);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.25rem; font-weight: bold; }
+    .brand a { color: white; text-decoration: none; }
+    .nav-links { display: flex; gap: 8px; align-items: center; }
+    .nav-links a, .nav-links button {
+      background: #1e3a5f;
+      color: white;
+      border: 1px solid #38bdf8;
+      padding: 7px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .nav-links button:hover, .nav-links a:hover { background: #0284c7; }
+
+    main { max-width: 1200px; margin: 24px auto; padding: 0 20px; }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 24px;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    
+    input, select {
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    input:focus, select:focus { outline: 2px solid var(--blue); }
+
+    button.btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #1e3a5f;
-      padding: 5px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      color: #fff;
-      border: 1px solid #38bdf8;
-      vertical-align: middle;
+      transition: 0.15s;
     }
-    .header-visits-badge svg {
-      width: 16px;
-      height: 16px;
-      fill: #38bdf8;
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-primary:hover { background: var(--blue-hover); }
+    .btn-success { background: var(--green); color: white; }
+    .btn-danger { background: var(--red); color: white; }
+    .btn-outline { background: white; border: 1px solid #cbd5e1; color: var(--ink); }
+    .btn-outline:hover { background: #f1f5f9; }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
     }
+    .stat-card {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat-card strong { display: block; font-size: 1.8rem; color: var(--blue); }
+    .stat-card span { color: var(--muted); font-size: 0.9rem; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #f1f5f9; color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    tr:hover { background: #f8fafc; }
+    
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+    .badge-class { background: #e0f2fe; color: #0369a1; }
+    .badge-id { font-family: monospace; font-size: 1rem; font-weight: bold; color: #0f172a; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; }
+
+    .actions-cell { display: flex; gap: 6px; }
+    .btn-sm { padding: 5px 9px; font-size: 0.8rem; border-radius: 6px; }
+
+    dialog {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      width: min(92vw, 480px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+    dialog::backdrop { background: rgba(16, 34, 53, 0.6); }
+    .dialog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
+    .form-group input, .form-group select { width: 100%; }
+
+    #auth-gate { max-width: 420px; margin: 80px auto; text-align: center; }
   </style>
 </head>
 <body>
-  <header class="top">
-    <a class="brand" href="./" aria-label="Oqab Academy home">
-      <img src="./logo.webp" alt="Oqab Academy logo" width="52" height="52">
-      <span>Oqab Academy</span>
-    </a>
-    <nav>
-      <a href="./">Home</a>
-      <a href="#courses">Courses</a>
-      <a href="#private-lessons">Private lessons</a>
-      <a href="./vocab/">Vocabulary app</a>
-      <a href="./admin.html">Teacher dashboard</a>
-      <span class="header-visits-badge" title="Total Website Visits">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 5c-5.2 0-9.3 4.5-10.5 6a1.6 1.6 0 0 0 0 2C2.7 14.5 6.8 19 12 19s9.3-4.5 10.5-6a1.6 1.6 0 0 0 0-2C21.3 9.5 17.2 5 12 5Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm0-2a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
-        </svg>
-        <b id="total-visits">…</b>
-      </span>
-    </nav>
-  </header>
 
-  <main>
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Learn · practise · grow</p>
-        <h1>Learning that feels like progress.</h1>
-        <p>Clear lessons, purposeful games, quizzes, and personal progress — created by Mr. Ahmed Oqab.</p>
-        <a class="btn primary" href="./vocab/">Open Vocabulary Level B →</a>
+  <!-- 1. Teacher Passcode Screen -->
+  <div id="auth-gate" class="panel">
+    <h2>Teacher Login</h2>
+    <p class="muted">Enter your Teacher Password to access class & student management.</p>
+    <div class="form-group">
+      <input type="password" id="teacher-pin" placeholder="Enter Password (Default: oqab2026)">
+    </div>
+    <button class="btn btn-primary" style="width:100%" id="btn-unlock">Unlock Dashboard</button>
+    <div style="margin-top:14px">
+      <button type="button" class="btn-outline btn-sm" id="btn-forgot-teacher-pass">Forgot Password?</button>
+    </div>
+    <p id="pin-error" style="color:var(--red);font-size:0.85rem;margin-top:8px" hidden>Incorrect password. Please try again.</p>
+  </div>
+
+  <!-- 2. Main Protected Dashboard -->
+  <div id="dashboard-content" hidden>
+    <header>
+      <div class="brand">
+        <a href="./">Oqab Academy</a> ➔ <span>Teacher Control Panel</span>
       </div>
-    </section>
+      <div class="nav-links">
+        <a href="./vocab/">Vocabulary App</a>
+        <button id="btn-teacher-settings">⚙️ Settings & Password</button>
+        <button id="btn-lock">Lock & Sign Out</button>
+      </div>
+    </header>
 
-    <section class="wrap" id="courses">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Learning library</p>
-          <h2>Courses</h2>
+    <main>
+      <!-- Real-time Stats -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <strong id="stat-total-students">0</strong>
+          <span>Enrolled Students</span>
         </div>
-        <a class="btn" href="./">Home</a>
+        <div class="stat-card">
+          <strong id="stat-total-classes">0</strong>
+          <span>Active Classes</span>
+        </div>
+        <div class="stat-card">
+          <strong id="stat-total-xp">0</strong>
+          <span>Total Student XP</span>
+        </div>
       </div>
-      <div class="grid">
-        <article class="card">
-          <span class="tag">Complete course</span>
-          <h2>Vocabulary Level B</h2>
-          <p>Units 1–15 · 300 words · study cards · adaptive practice · three learning games.</p>
-          <a class="btn primary" href="./vocab/">Start learning</a>
-        </article>
-        <article class="card">
-          <span class="tag soon">Ready to expand</span>
-          <h2>More courses</h2>
-          <p>New subjects, grade levels, and classes can be added here without changing the vocabulary app.</p>
-        </article>
+
+      <!-- Controls & Roster Table -->
+      <div class="panel">
+        <div class="top-actions">
+          <div class="filters">
+            <input type="text" id="search-input" placeholder="Search by name or ID (e.g. S647832)...">
+            <select id="class-filter">
+              <option value="all">All Classes</option>
+            </select>
+            <button class="btn btn-outline btn-sm" id="btn-manage-classes">📁 Manage Classes</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" id="btn-add-student">＋ Add Student</button>
+            <button class="btn btn-outline" id="btn-export-roster">📥 Export to Excel (CSV)</button>
+            <button class="btn btn-outline" id="btn-import-roster">📤 Import</button>
+            <input type="file" id="file-import-csv" accept=".json,.csv" hidden>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Full Name</th>
+                <th>Class</th>
+                <th>Password</th>
+                <th>Total XP</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="roster-tbody"></tbody>
+          </table>
+        </div>
       </div>
-    </section>
+    </main>
+  </div>
 
-    <section class="wrap panel lessons" id="private-lessons">
-      <p class="eyebrow">English private lessons</p>
-      <h2>Build confidence in English with Mr. Ahmed Oqab</h2>
-      <p>Private support for vocabulary, reading, grammar, speaking, schoolwork, and exam preparation. Contact me to discuss the learner’s level, goals, and a suitable lesson time.</p>
-      <div class="contacts">
-        <a href="https://wa.me/966599840950" target="_blank" rel="noopener" aria-label="WhatsApp Saudi Arabia, +966 59 984 0950">
-          <span aria-hidden="true">💬</span> WhatsApp Saudi Arabia <b dir="ltr">+966 59 984 0950</b>
-        </a>
-        <a href="https://wa.me/201154348709" target="_blank" rel="noopener" aria-label="WhatsApp Egypt, +20 11 5434 8709">
-          <span aria-hidden="true">💬</span> WhatsApp Egypt <b dir="ltr">+20 11 5434 8709</b>
-        </a>
+  <!-- Modal: Add / Edit Student -->
+  <dialog id="modal-student">
+    <div class="dialog-header">
+      <h3 id="modal-student-title">Add Student</h3>
+      <button class="btn btn-outline btn-sm" onclick="this.closest('dialog').close()">✕</button>
+    </div>
+    <form id="form-student">
+      <input type="hidden" id="student-edit-index">
+      <div class="form-group">
+        <label>Student ID (Format: S + 6 digits, e.g. S647832)</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="input-student-id" required pattern="[Ss][0-9]{6}" maxlength="7" placeholder="S647832">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-gen-id">Auto</button>
+        </div>
       </div>
-    </section>
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="input-fname" required placeholder="e.g. Omar">
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="input-lname" required placeholder="e.g. Khaled">
+      </div>
+      <div class="form-group">
+        <label>Class / Level</label>
+        <select id="input-class" required></select>
+      </div>
+      <div class="form-group">
+        <label>Temporary Password</label>
+        <input type="text" id="input-temp-pass" required placeholder="Temporary password" value="Oqab2026!">
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Student</button>
+      </div>
+    </form>
+  </dialog>
 
-    <section class="wrap panel contact">
-      <p class="eyebrow">Created by</p>
-      <h2>Mr. Ahmed Oqab</h2>
-      <p>Questions, learning support, or private-lesson enquiries are welcome on WhatsApp.</p>
-    </section>
-  </main>
+  <!-- Modal: Manage Classes -->
+  <dialog id="modal-classes">
+    <div class="dialog-header">
+      <h3>Manage Classes</h3>
+      <button class="btn btn-outline btn-sm" onclick="this.closest('dialog').close()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Create New Class</label>
+      <div style="display:flex;gap:6px">
+        <input type="text" id="input-new-class-name" placeholder="e.g. Grade 8 - Advanced">
+        <button class="btn btn-primary btn-sm" id="btn-add-class-confirm">Create</button>
+      </div>
+    </div>
+    <h4>Current Classes</h4>
+    <ul id="class-list-ul" style="padding-left:20px;max-height:180px;overflow-y:auto"></ul>
+    <div style="text-align:right;margin-top:16px">
+      <button class="btn btn-outline" onclick="this.closest('dialog').close()">Done</button>
+    </div>
+  </dialog>
 
-  <footer>
-    © <span id="year"></span> Oqab Academy · Mr. Ahmed Oqab
-  </footer>
+  <!-- Modal: Teacher Settings & Password Management -->
+  <dialog id="modal-teacher-settings">
+    <div class="dialog-header">
+      <h3>Teacher Account Settings</h3>
+      <button class="btn btn-outline btn-sm" onclick="this.closest('dialog').close()">✕</button>
+    </div>
+    <form id="form-teacher-settings">
+      <div class="form-group">
+        <label>Recovery Email (for password resets)</label>
+        <input type="email" id="teacher-recovery-email" required placeholder="ahmedokap95@gmail.com">
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+      <h4>Change Teacher Password</h4>
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" id="teacher-current-pass" placeholder="Enter current password">
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="teacher-new-pass" minlength="6" placeholder="New password (min 6 characters)">
+      </div>
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" id="teacher-confirm-pass" minlength="6" placeholder="Repeat new password">
+      </div>
+      <p id="settings-msg" style="font-size:0.85rem;" hidden></p>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Close</button>
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+      </div>
+    </form>
+  </dialog>
 
-  <script type="module">
-    document.querySelector('#year').textContent = new Date().getFullYear();
-    const visitEl = document.querySelector('#total-visits');
-    let localCount = parseInt(localStorage.getItem('oqab_hub_visits') || '1480', 10);
-    if (!sessionStorage.getItem('hub_counted')) {
-      localCount += 1;
-      localStorage.setItem('oqab_hub_visits', localCount);
-      sessionStorage.setItem('hub_counted', 'true');
+  <!-- Modal: Password Recovery -->
+  <dialog id="modal-forgot-pass">
+    <div class="dialog-header">
+      <h3>Reset Teacher Password</h3>
+      <button class="btn btn-outline btn-sm" onclick="this.closest('dialog').close()">✕</button>
+    </div>
+    <p class="muted" style="font-size:0.9rem">A verification code will be sent to your registered email address.</p>
+    <div class="form-group">
+      <label>Registered Email</label>
+      <input type="email" id="recovery-input-email" placeholder="Enter your email">
+    </div>
+    <div id="code-step" hidden>
+      <div class="form-group">
+        <label>Verification Code</label>
+        <input type="text" id="recovery-input-code" placeholder="Enter 6-digit code">
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="recovery-new-pass" placeholder="Enter new password">
+      </div>
+    </div>
+    <p id="recovery-msg" style="font-size:0.85rem;" hidden></p>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-send-code">Send Reset Code</button>
+      <button type="button" class="btn btn-success" id="btn-submit-reset" hidden>Reset Password</button>
+    </div>
+  </dialog>
+
+  <script>
+    // State initialization
+    let teacherPassword = localStorage.getItem('oqab_teacher_pass') || 'oqab2026';
+    let teacherEmail = localStorage.getItem('oqab_teacher_email') || 'ahmedokap95@gmail.com';
+    let generatedResetCode = null;
+
+    const DEFAULT_ROSTER = [
+      { id: "S647832", firstName: "Ahmed", lastName: "Oqab", className: "Level B - Group 1", pass: "Oqab2026!", isTemp: false, xp: 180 },
+      { id: "S647833", firstName: "Omar", lastName: "Khaled", className: "Level B - Group 1", pass: "Oqab2026!", isTemp: true, xp: 65 },
+      { id: "S647834", firstName: "Youssef", lastName: "Hassan", className: "Level B - Group 2", pass: "Oqab2026!", isTemp: true, xp: 20 }
+    ];
+
+    const DEFAULT_CLASSES = ["Level B - Group 1", "Level B - Group 2", "Level B - Advanced"];
+
+    let students = JSON.parse(localStorage.getItem('oqab_student_roster')) || DEFAULT_ROSTER;
+    let classes = JSON.parse(localStorage.getItem('oqab_classes')) || DEFAULT_CLASSES;
+
+    function saveState() {
+      localStorage.setItem('oqab_student_roster', JSON.stringify(students));
+      localStorage.setItem('oqab_classes', JSON.stringify(classes));
+      renderDashboard();
     }
-    if (visitEl) visitEl.textContent = localCount.toLocaleString();
+
+    // 1. Unlock & Lock
+    document.getElementById('btn-unlock').addEventListener('click', () => {
+      const pin = document.getElementById('teacher-pin').value;
+      if (pin === teacherPassword) {
+        document.getElementById('auth-gate').hidden = true;
+        document.getElementById('dashboard-content').hidden = false;
+        renderDashboard();
+      } else {
+        document.getElementById('pin-error').hidden = false;
+      }
+    });
+
+    document.getElementById('btn-lock').addEventListener('click', () => {
+      document.getElementById('auth-gate').hidden = false;
+      document.getElementById('dashboard-content').hidden = true;
+      document.getElementById('teacher-pin').value = '';
+    });
+
+    // 2. Render Roster
+    function renderDashboard() {
+      const tbody = document.getElementById('roster-tbody');
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const filterClass = document.getElementById('class-filter').value;
+
+      document.getElementById('stat-total-students').textContent = students.length;
+      document.getElementById('stat-total-classes').textContent = classes.length;
+      const totalXP = students.reduce((acc, s) => acc + (s.xp || 0), 0);
+      document.getElementById('stat-total-xp').textContent = totalXP.toLocaleString();
+
+      // Class Filter Dropdown
+      const classFilterSelect = document.getElementById('class-filter');
+      const currentFilter = classFilterSelect.value;
+      classFilterSelect.innerHTML = '<option value="all">All Classes</option>' + 
+        classes.map(c => `<option value="${c}">${c}</option>`).join('');
+      classFilterSelect.value = currentFilter;
+
+      // Input Class Dropdown
+      const inputClassSelect = document.getElementById('input-class');
+      inputClassSelect.innerHTML = classes.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      const filtered = students.filter(s => {
+        const matchesSearch = (s.id + ' ' + s.firstName + ' ' + s.lastName).toLowerCase().includes(search);
+        const matchesClass = filterClass === 'all' || s.className === filterClass;
+        return matchesSearch && matchesClass;
+      });
+
+      tbody.innerHTML = filtered.map((s, idx) => {
+        const originalIndex = students.indexOf(s);
+        return `
+          <tr>
+            <td><span class="badge-id">${s.id}</span></td>
+            <td><strong>${s.firstName} ${s.lastName}</strong></td>
+            <td><span class="badge badge-class">${s.className}</span></td>
+            <td><code>${s.pass}</code> ${s.isTemp ? '<small style="color:#d97706">(temp)</small>' : '<small style="color:#16a34a">(active)</small>'}</td>
+            <td><strong>${s.xp || 0}</strong> XP</td>
+            <td class="actions-cell">
+              <button class="btn btn-outline btn-sm" onclick="resetStudentPassword(${originalIndex})">🔑 Reset</button>
+              <button class="btn btn-outline btn-sm" onclick="editStudent(${originalIndex})">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteStudent(${originalIndex})">🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join('') || '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No students found.</td></tr>';
+    }
+
+    // 3. Add & Edit Student
+    document.getElementById('btn-add-student').addEventListener('click', () => {
+      document.getElementById('modal-student-title').textContent = "Add New Student";
+      document.getElementById('student-edit-index').value = "-1";
+      document.getElementById('form-student').reset();
+      generateNextStudentId();
+      document.getElementById('modal-student').showModal();
+    });
+
+    function generateNextStudentId() {
+      const numbers = students.map(s => parseInt(s.id.replace(/\D/g, ''))).filter(n => !isNaN(n));
+      const nextNum = (numbers.length ? Math.max(...numbers) : 647831) + 1;
+      document.getElementById('input-student-id').value = 'S' + nextNum;
+    }
+    document.getElementById('btn-gen-id').addEventListener('click', generateNextStudentId);
+
+    window.editStudent = function(index) {
+      const s = students[index];
+      document.getElementById('modal-student-title').textContent = "Edit Student";
+      document.getElementById('student-edit-index').value = index;
+      document.getElementById('input-student-id').value = s.id;
+      document.getElementById('input-fname').value = s.firstName;
+      document.getElementById('input-lname').value = s.lastName;
+      document.getElementById('input-class').value = s.className;
+      document.getElementById('input-temp-pass').value = s.pass || 'Oqab2026!';
+      document.getElementById('modal-student').showModal();
+    };
+
+    window.deleteStudent = function(index) {
+      const s = students[index];
+      if (confirm(`Delete student ${s.firstName} ${s.lastName} (${s.id})?`)) {
+        students.splice(index, 1);
+        saveState();
+      }
+    };
+
+    window.resetStudentPassword = function(index) {
+      const newPass = prompt(`Enter new password for ${students[index].firstName}:`, "Oqab2026!");
+      if (newPass) {
+        students[index].pass = newPass;
+        students[index].isTemp = true;
+        saveState();
+        alert(`Password for ${students[index].id} set to: ${newPass}`);
+      }
+    };
+
+    document.getElementById('form-student').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const editIdx = parseInt(document.getElementById('student-edit-index').value);
+      const studentData = {
+        id: document.getElementById('input-student-id').value.toUpperCase().trim(),
+        firstName: document.getElementById('input-fname').value.trim(),
+        lastName: document.getElementById('input-lname').value.trim(),
+        className: document.getElementById('input-class').value,
+        pass: document.getElementById('input-temp-pass').value.trim(),
+        isTemp: true,
+        xp: editIdx >= 0 ? students[editIdx].xp : 0
+      };
+
+      if (editIdx >= 0) students[editIdx] = studentData;
+      else students.push(studentData);
+
+      saveState();
+      document.getElementById('modal-student').close();
+    });
+
+    // 4. Class Management
+    document.getElementById('btn-manage-classes').addEventListener('click', () => {
+      renderClassList();
+      document.getElementById('modal-classes').showModal();
+    });
+
+    function renderClassList() {
+      const ul = document.getElementById('class-list-ul');
+      ul.innerHTML = classes.map((c, i) => `
+        <li style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <span>${c}</span>
+          <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deleteClass(${i})">Remove</button>
+        </li>
+      `).join('');
+    }
+
+    document.getElementById('btn-add-class-confirm').addEventListener('click', () => {
+      const val = document.getElementById('input-new-class-name').value.trim();
+      if (val && !classes.includes(val)) {
+        classes.push(val);
+        document.getElementById('input-new-class-name').value = '';
+        renderClassList();
+        saveState();
+      }
+    });
+
+    window.deleteClass = function(index) {
+      if (confirm(`Remove class "${classes[index]}"? (Students will remain enrolled).`)) {
+        classes.splice(index, 1);
+        renderClassList();
+        saveState();
+      }
+    };
+
+    // 5. Teacher Password & Email Settings
+    document.getElementById('btn-teacher-settings').addEventListener('click', () => {
+      document.getElementById('teacher-recovery-email').value = teacherEmail;
+      document.getElementById('settings-msg').hidden = true;
+      document.getElementById('modal-teacher-settings').showModal();
+    });
+
+    document.getElementById('form-teacher-settings').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newEmail = document.getElementById('teacher-recovery-email').value.trim();
+      const currentPass = document.getElementById('teacher-current-pass').value;
+      const newPass = document.getElementById('teacher-new-pass').value;
+      const confirmPass = document.getElementById('teacher-confirm-pass').value;
+      const msg = document.getElementById('settings-msg');
+
+      if (newEmail) {
+        teacherEmail = newEmail;
+        localStorage.setItem('oqab_teacher_email', teacherEmail);
+      }
+
+      if (newPass || currentPass) {
+        if (currentPass !== teacherPassword) {
+          msg.textContent = "Current password is incorrect.";
+          msg.style.color = "var(--red)";
+          msg.hidden = false;
+          return;
+        }
+        if (newPass !== confirmPass) {
+          msg.textContent = "New passwords do not match.";
+          msg.style.color = "var(--red)";
+          msg.hidden = false;
+          return;
+        }
+        teacherPassword = newPass;
+        localStorage.setItem('oqab_teacher_pass', teacherPassword);
+      }
+
+      msg.textContent = "Settings saved successfully!";
+      msg.style.color = "var(--green)";
+      msg.hidden = false;
+      setTimeout(() => document.getElementById('modal-teacher-settings').close(), 1200);
+    });
+
+    // 6. Forgot Password Self-Service Recovery
+    document.getElementById('btn-forgot-teacher-pass').addEventListener('click', () => {
+      document.getElementById('recovery-input-email').value = teacherEmail;
+      document.getElementById('code-step').hidden = true;
+      document.getElementById('btn-send-code').hidden = false;
+      document.getElementById('btn-submit-reset').hidden = true;
+      document.getElementById('recovery-msg').hidden = true;
+      document.getElementById('modal-forgot-pass').showModal();
+    });
+
+    document.getElementById('btn-send-code').addEventListener('click', () => {
+      const email = document.getElementById('recovery-input-email').value.trim();
+      if (email.toLowerCase() === teacherEmail.toLowerCase()) {
+        generatedResetCode = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        // Launch standard mail client with reset code
+        const mailSubject = encodeURIComponent("Oqab Academy - Teacher Password Reset Code");
+        const mailBody = encodeURIComponent(`Hello Mr. Ahmed,\n\nYour security verification code is: ${generatedResetCode}\n\nEnter this code on your dashboard to set a new password.`);
+        window.open(`mailto:${teacherEmail}?subject=${mailSubject}&body=${mailBody}`, '_blank');
+
+        document.getElementById('code-step').hidden = false;
+        document.getElementById('btn-send-code').hidden = true;
+        document.getElementById('btn-submit-reset').hidden = false;
+        
+        const msg = document.getElementById('recovery-msg');
+        msg.textContent = `A reset email was prepared. Verification Code: ${generatedResetCode}`;
+        msg.style.color = "var(--blue)";
+        msg.hidden = false;
+      } else {
+        alert("This email does not match the registered teacher email.");
+      }
+    });
+
+    document.getElementById('btn-submit-reset').addEventListener('click', () => {
+      const code = document.getElementById('recovery-input-code').value.trim();
+      const newPass = document.getElementById('recovery-new-pass').value.trim();
+      if (code === generatedResetCode && newPass.length >= 6) {
+        teacherPassword = newPass;
+        localStorage.setItem('oqab_teacher_pass', teacherPassword);
+        alert("Password reset successfully! You can now log in.");
+        document.getElementById('modal-forgot-pass').close();
+      } else {
+        alert("Invalid code or password is under 6 characters.");
+      }
+    });
+
+    // 7. Search & CSV Export / Import
+    document.getElementById('search-input').addEventListener('input', renderDashboard);
+    document.getElementById('class-filter').addEventListener('change', renderDashboard);
+
+    document.getElementById('btn-export-roster').addEventListener('click', () => {
+      const rows = [
+        ["Student ID", "First Name", "Last Name", "Class", "Password", "XP"],
+        ...students.map(s => [s.id, s.firstName, s.lastName, s.className, s.pass, s.xp || 0])
+      ];
+      const csvContent = "\uFEFF" + rows.map(r => r.map(c => `"${c}"`).join(",")).join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `Oqab_Academy_Roster_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    });
+
+    document.getElementById('btn-import-roster').addEventListener('click', () => document.getElementById('file-import-csv').click());
+    document.getElementById('file-import-csv').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const lines = event.target.result.split('\n').filter(l => l.trim().length > 0);
+          const imported = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',').map(c => c.replace(/["\r]/g, '').trim());
+            if (cols[0] && cols) {
+              imported.push({
+                id: cols[0], firstName: cols, lastName: cols || '',
+                className: cols || 'Level B', pass: cols || 'Oqab2026!',
+                isTemp: true, xp: parseInt(cols) || 0
+              });
+            }
+          }
+          if (imported.length) { students = imported; saveState(); alert(`Imported ${imported.length} students!`); }
+        } catch (err) {
+          alert("Could not import file. Please upload a valid CSV roster.");
+        }
+      };
+      reader.readAsText(file);
+    });
   </script>
 </body>
 </html>
