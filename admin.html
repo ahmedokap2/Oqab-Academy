@@ -7,85 +7,51 @@
   <title>Teacher Dashboard | Oqab Academy</title>
   <style>
     :root {
-      --ink: #102235;
-      --paper: #f8fafc;
-      --card: #ffffff;
-      --blue: #0284c7;
-      --blue-hover: #0369a1;
-      --green: #16a34a;
-      --red: #dc2626;
-      --border: #e2e8f0;
-      --muted: #64748b;
+      --ink: #102235; --paper: #f8fafc; --card: #ffffff;
+      --blue: #0284c7; --blue-hover: #0369a1; --green: #16a34a; --red: #dc2626;
+      --border: #e2e8f0; --muted: #64748b;
       font-family: Calibri, system-ui, -apple-system, sans-serif;
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.5; }
-    
+
     header {
-      background: #102235;
-      color: white;
-      padding: 14px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 3px solid var(--blue);
-      flex-wrap: wrap;
-      gap: 12px;
+      background: #102235; color: white; padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 3px solid var(--blue); flex-wrap: wrap; gap: 12px;
     }
     .brand { display: flex; align-items: center; gap: 10px; font-size: 1.25rem; font-weight: bold; }
     .brand a { color: white; text-decoration: none; }
     .nav-links { display: flex; gap: 8px; align-items: center; }
     .nav-links a, .nav-links button {
-      background: #1e3a5f;
-      color: white;
-      border: 1px solid #38bdf8;
-      padding: 7px 14px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      cursor: pointer;
+      background: #1e3a5f; color: white; border: 1px solid #38bdf8;
+      padding: 7px 14px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; cursor: pointer;
     }
     .nav-links button:hover, .nav-links a:hover { background: #0284c7; }
 
     main { max-width: 1200px; margin: 24px auto; padding: 0 20px; }
 
     .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       margin-bottom: 24px;
     }
 
     .top-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-wrap: wrap; gap: 16px; margin-bottom: 20px;
     }
-    .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    
-    input, select {
-      padding: 8px 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 0.95rem;
+
+    input, select, textarea {
+      padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; width: 100%;
     }
-    input:focus, select:focus { outline: 2px solid var(--blue); }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--blue); }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
 
     button.btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: 0.15s;
+      padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;
+      border: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.15s;
     }
     .btn-primary { background: var(--blue); color: white; }
     .btn-primary:hover { background: var(--blue-hover); }
@@ -95,17 +61,12 @@
     .btn-outline:hover { background: #f1f5f9; }
 
     .stats-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 24px;
     }
     .stat-card {
-      background: white;
-      padding: 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      text-align: center;
+      background: white; padding: 16px; border-radius: 12px;
+      border: 1px solid var(--border); text-align: center;
     }
     .stat-card strong { display: block; font-size: 1.8rem; color: var(--blue); }
     .stat-card span { color: var(--muted); font-size: 0.9rem; }
@@ -114,405 +75,134 @@
     th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
     th { background: #f1f5f9; color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
     tr:hover { background: #f8fafc; }
-    
-    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
-    .badge-class { background: #e0f2fe; color: #0369a1; }
-    .badge-id { font-family: monospace; font-size: 1rem; font-weight: bold; color: #0f172a; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; }
 
-    .actions-cell { display: flex; gap: 6px; }
-    .btn-sm { padding: 5px 9px; font-size: 0.8rem; border-radius: 6px; }
-
-    dialog {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      width: min(92vw, 480px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-    }
-    dialog::backdrop { background: rgba(16, 34, 53, 0.6); }
-    .dialog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.9rem; }
-    .form-group input, .form-group select { width: 100%; }
+    .hidden { display: none !important; }
+    #status { padding: 10px; text-align: center; background: var(--blue); color: white; font-weight: bold; }
+    #status.error { background: var(--red); }
   </style>
 </head>
 <body>
 
-  <!-- Direct Entry to Teacher Dashboard -->
+  <div id="status" class="hidden"></div>
+
   <header>
     <div class="brand">
       <a href="./">Oqab Academy</a> ➔ <span>Teacher Control Panel</span>
     </div>
     <div class="nav-links">
       <a href="./vocab/">Open Vocab App</a>
-      <button id="btn-teacher-settings">⚙️ Settings & Password</button>
+      <button id="refresh" class="hidden">Refresh Data</button>
+      <button id="logout" class="hidden">Sign Out</button>
     </div>
   </header>
 
-  <main>
+  <main id="login">
+    <div class="panel" style="max-width: 400px; margin: 40px auto;">
+      <h2 style="margin-top: 0;">Teacher Login</h2>
+      <form id="login-form">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" required>
+        </div>
+        <p id="login-msg" class="hidden" style="color: var(--red); font-size: 0.9rem;"></p>
+        <div style="display:flex; gap:10px; margin-top: 16px;">
+          <button type="submit" class="btn btn-primary">Login</button>
+          <button type="button" class="btn btn-outline" id="forgot">Forgot Password?</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <main id="dashboard" class="hidden">
     <div class="stats-bar">
-      <div class="stat-card">
-        <strong id="stat-total-students">0</strong>
-        <span>Enrolled Students</span>
+      <div class="stat-card"><strong id="m-total">0</strong><span>Total Visits</span></div>
+      <div class="stat-card"><strong id="m-unique">0</strong><span>Unique Visitors</span></div>
+      <div class="stat-card"><strong id="m-students">0</strong><span>Secure Accounts</span></div>
+      <div class="stat-card"><strong id="m-active">0</strong><span>Active Accounts</span></div>
+    </div>
+
+    <div class="top-actions">
+      <div class="panel" style="flex: 1; margin-bottom: 0;">
+        <h3>Site Access Settings</h3>
+        <div style="display:flex; gap:10px;">
+          <select id="access-mode">
+            <option value="public">Public</option>
+            <option value="restricted">Restricted</option>
+          </select>
+          <button id="save-mode" class="btn btn-primary">Save Mode</button>
+        </div>
       </div>
-      <div class="stat-card">
-        <strong id="stat-total-classes">0</strong>
-        <span>Active Classes</span>
+      <div class="panel" style="flex: 1; margin-bottom: 0;">
+        <h3>Change Password</h3>
+        <form id="password-form" style="display:flex; gap:10px;">
+          <input type="password" id="current-password" placeholder="Current Password" required>
+          <input type="password" id="new-password" placeholder="New Password" required>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </form>
       </div>
-      <div class="stat-card">
-        <strong id="stat-total-xp">0</strong>
-        <span>Total Student XP</span>
+    </div>
+
+    <div class="top-actions">
+      <div class="panel" style="flex: 1; margin-bottom: 0;">
+        <h3>Manage Classes</h3>
+        <form id="class-form" style="display:flex; gap:10px; margin-bottom: 15px;">
+          <input type="text" id="class-code" placeholder="Code (e.g. G8)" required>
+          <input type="text" id="class-name" placeholder="Name" required>
+          <button type="submit" class="btn btn-primary">Save Class</button>
+        </form>
+        <div id="class-list"></div>
+      </div>
+      <div class="panel" style="flex: 1; margin-bottom: 0;">
+        <h3>Add Students</h3>
+        <form id="students-form" style="display:flex; flex-direction:column; gap:10px;">
+          <select id="student-class" required></select>
+          <textarea id="student-ids" placeholder="Paste student IDs or Emails here..." rows="3" required></textarea>
+          <button type="submit" class="btn btn-success">Provision Students</button>
+        </form>
+        <div id="credentials-box" class="hidden" style="margin-top: 15px;">
+          <textarea id="credentials-preview" readonly rows="3" style="margin-bottom: 10px;"></textarea>
+          <button id="download-credentials" class="btn btn-outline">Download CSV</button>
+        </div>
       </div>
     </div>
 
     <div class="panel">
-      <div class="top-actions">
-        <div class="filters">
-          <input type="text" id="search-input" placeholder="Search by name or ID (e.g. S647832)...">
-          <select id="class-filter">
-            <option value="all">All Classes</option>
-          </select>
-          <button class="btn btn-outline btn-sm" id="btn-manage-classes">📁 Manage Classes</button>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-primary" id="btn-add-student">＋ Add Student</button>
-          <button class="btn btn-outline" id="btn-export-roster">📥 Export to Excel (CSV)</button>
-          <button class="btn btn-outline" id="btn-import-roster">📤 Import</button>
-          <input type="file" id="file-import-csv" accept=".json,.csv" hidden>
-        </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+        <h3 style="margin: 0;">Student Roster</h3>
+        <select id="filter-class" style="width: auto;"><option value="">All Classes</option></select>
       </div>
-
       <div style="overflow-x:auto">
         <table>
           <thead>
             <tr>
-              <th>Student ID</th>
-              <th>Full Name</th>
-              <th>Class</th>
-              <th>Password</th>
-              <th>Total XP</th>
-              <th>Actions</th>
+              <th>ID</th><th>Class</th><th>Name</th><th>Visits</th><th>XP</th><th>Mastered</th><th>Recovery</th><th>Password</th><th>Last Visit</th><th>Actions</th>
             </tr>
           </thead>
-          <tbody id="roster-tbody"></tbody>
+          <tbody id="student-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Recent Activity</h3>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Class</th><th>Activity</th><th>Unit</th><th>Score</th><th>XP</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="activity-table"></tbody>
         </table>
       </div>
     </div>
   </main>
 
-  <!-- Add / Edit Student Dialog -->
-  <dialog id="modal-student">
-    <div class="dialog-header">
-      <h3 id="modal-student-title">Add Student</h3>
-      <button class="btn btn-outline btn-sm" onclick="this.closest('dialog').close()">✕</button>
-    </div>
-    <form id="form-student">
-      <input type="hidden" id="student-edit-index">
-      <div class="form-group">
-        <label>Student ID (Format: S + 6 digits, e.g. S647832)</label>
-        <div style="display:flex;gap:6px">
-          <input type="text" id="input-student-id" required pattern="[Ss][0-9]{6}" maxlength="7" placeholder="S647832">
-          <button type="button" class="btn btn-outline btn-sm" id="btn-gen-id">Auto</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>First Name</label>
-        <input type="text" id="input-fname" required placeholder="e.g. Omar">
-      </div>
-      <div class="form-group">
-        <label>Last Name</label>
-        <input type="text" id="input-lname" required placeholder="e.g. Khaled">
-      </div>
-      <div class="form-group">
-        <label>Class / Level</label>
-        <select id="input-class" required></select>
-      </div>
-      <div class="form-group">
-        <label>Temporary Password</label>
-        <input type="text" id="input-temp-pass" required placeholder="Temporary password" value="Oqab2026!">
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
-        <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save Student</button>
-      </div>
-    </form>
-  </dialog>
-
-  <!-- Manage Classes Dialog -->
-  <dialog id="modal-classes">
-    <div class="dialog-header">
-      <h3>Manage Classes</h3>
-      <button class="btn btn-outline btn-sm" onclick="this.closest('dialog').close()">✕</button>
-    </div>
-    <div class="form-group">
-      <label>Create New Class</label>
-      <div style="display:flex;gap:6px">
-        <input type="text" id="input-new-class-name" placeholder="e.g. Grade 8 - Advanced">
-        <button class="btn btn-primary btn-sm" id="btn-add-class-confirm">Create</button>
-      </div>
-    </div>
-    <h4>Current Classes</h4>
-    <ul id="class-list-ul" style="padding-left:20px;max-height:180px;overflow-y:auto"></ul>
-    <div style="text-align:right;margin-top:16px">
-      <button class="btn btn-outline" onclick="this.closest('dialog').close()">Done</button>
-    </div>
-  </dialog>
-
-  <!-- Teacher Settings Modal -->
-  <dialog id="modal-teacher-settings">
-    <div class="dialog-header">
-      <h3>Teacher Account Settings</h3>
-      <button class="btn btn-outline btn-sm" onclick="this.closest('dialog').close()">✕</button>
-    </div>
-    <form id="form-teacher-settings">
-      <div class="form-group">
-        <label>Recovery Email</label>
-        <input type="email" id="teacher-recovery-email" required placeholder="ahmedokap95@gmail.com">
-      </div>
-      <div class="form-group">
-        <label>New Password</label>
-        <input type="password" id="teacher-new-pass" minlength="6" placeholder="Leave blank to keep unchanged">
-      </div>
-      <p id="settings-msg" style="font-size:0.85rem;" hidden></p>
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
-        <button type="button" class="btn btn-outline" onclick="this.closest('dialog').close()">Close</button>
-        <button type="submit" class="btn btn-primary">Save Settings</button>
-      </div>
-    </form>
-  </dialog>
-
-  <script>
-    let teacherEmail = localStorage.getItem('oqab_teacher_email') || 'ahmedokap95@gmail.com';
-
-    const DEFAULT_ROSTER = [
-      { id: "S647832", firstName: "Ahmed", lastName: "Oqab", className: "Level B - Group 1", pass: "Oqab2026!", isTemp: false, xp: 180 },
-      { id: "S647833", firstName: "Omar", lastName: "Khaled", className: "Level B - Group 1", pass: "Oqab2026!", isTemp: true, xp: 65 },
-      { id: "S647834", firstName: "Youssef", lastName: "Hassan", className: "Level B - Group 2", pass: "Oqab2026!", isTemp: true, xp: 20 }
-    ];
-
-    const DEFAULT_CLASSES = ["Level B - Group 1", "Level B - Group 2", "Level B - Advanced"];
-
-    let students = JSON.parse(localStorage.getItem('oqab_student_roster')) || DEFAULT_ROSTER;
-    let classes = JSON.parse(localStorage.getItem('oqab_classes')) || DEFAULT_CLASSES;
-
-    function saveState() {
-      localStorage.setItem('oqab_student_roster', JSON.stringify(students));
-      localStorage.setItem('oqab_classes', JSON.stringify(classes));
-      renderDashboard();
-    }
-
-    function renderDashboard() {
-      const tbody = document.getElementById('roster-tbody');
-      const search = document.getElementById('search-input').value.toLowerCase();
-      const filterClass = document.getElementById('class-filter').value;
-
-      document.getElementById('stat-total-students').textContent = students.length;
-      document.getElementById('stat-total-classes').textContent = classes.length;
-      const totalXP = students.reduce((acc, s) => acc + (s.xp || 0), 0);
-      document.getElementById('stat-total-xp').textContent = totalXP.toLocaleString();
-
-      const classFilterSelect = document.getElementById('class-filter');
-      const currentFilter = classFilterSelect.value;
-      classFilterSelect.innerHTML = '<option value="all">All Classes</option>' + 
-        classes.map(c => `<option value="${c}">${c}</option>`).join('');
-      classFilterSelect.value = currentFilter;
-
-      const inputClassSelect = document.getElementById('input-class');
-      inputClassSelect.innerHTML = classes.map(c => `<option value="${c}">${c}</option>`).join('');
-
-      const filtered = students.filter(s => {
-        const matchesSearch = (s.id + ' ' + s.firstName + ' ' + s.lastName).toLowerCase().includes(search);
-        const matchesClass = filterClass === 'all' || s.className === filterClass;
-        return matchesSearch && matchesClass;
-      });
-
-      tbody.innerHTML = filtered.map((s, idx) => {
-        const originalIndex = students.indexOf(s);
-        return `
-          <tr>
-            <td><span class="badge-id">${s.id}</span></td>
-            <td><strong>${s.firstName} ${s.lastName}</strong></td>
-            <td><span class="badge badge-class">${s.className}</span></td>
-            <td><code>${s.pass}</code> ${s.isTemp ? '<small style="color:#d97706">(temp)</small>' : '<small style="color:#16a34a">(active)</small>'}</td>
-            <td><strong>${s.xp || 0}</strong> XP</td>
-            <td class="actions-cell">
-              <button class="btn btn-outline btn-sm" onclick="resetStudentPassword(${originalIndex})">🔑 Reset</button>
-              <button class="btn btn-outline btn-sm" onclick="editStudent(${originalIndex})">✏️ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteStudent(${originalIndex})">🗑️</button>
-            </td>
-          </tr>
-        `;
-      }).join('') || '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No students found.</td></tr>';
-    }
-
-    document.getElementById('btn-add-student').addEventListener('click', () => {
-      document.getElementById('modal-student-title').textContent = "Add New Student";
-      document.getElementById('student-edit-index').value = "-1";
-      document.getElementById('form-student').reset();
-      generateNextStudentId();
-      document.getElementById('modal-student').showModal();
-    });
-
-    function generateNextStudentId() {
-      const numbers = students.map(s => parseInt(s.id.replace(/\D/g, ''))).filter(n => !isNaN(n));
-      const nextNum = (numbers.length ? Math.max(...numbers) : 647831) + 1;
-      document.getElementById('input-student-id').value = 'S' + nextNum;
-    }
-    document.getElementById('btn-gen-id').addEventListener('click', generateNextStudentId);
-
-    window.editStudent = function(index) {
-      const s = students[index];
-      document.getElementById('modal-student-title').textContent = "Edit Student";
-      document.getElementById('student-edit-index').value = index;
-      document.getElementById('input-student-id').value = s.id;
-      document.getElementById('input-fname').value = s.firstName;
-      document.getElementById('input-lname').value = s.lastName;
-      document.getElementById('input-class').value = s.className;
-      document.getElementById('input-temp-pass').value = s.pass || 'Oqab2026!';
-      document.getElementById('modal-student').showModal();
-    };
-
-    window.deleteStudent = function(index) {
-      const s = students[index];
-      if (confirm(`Delete student ${s.firstName} ${s.lastName} (${s.id})?`)) {
-        students.splice(index, 1);
-        saveState();
-      }
-    };
-
-    window.resetStudentPassword = function(index) {
-      const newPass = prompt(`Enter new password for ${students[index].firstName}:`, "Oqab2026!");
-      if (newPass) {
-        students[index].pass = newPass;
-        students[index].isTemp = true;
-        saveState();
-        alert(`Password for ${students[index].id} set to: ${newPass}`);
-      }
-    };
-
-    document.getElementById('form-student').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const editIdx = parseInt(document.getElementById('student-edit-index').value);
-      const studentData = {
-        id: document.getElementById('input-student-id').value.toUpperCase().trim(),
-        firstName: document.getElementById('input-fname').value.trim(),
-        lastName: document.getElementById('input-lname').value.trim(),
-        className: document.getElementById('input-class').value,
-        pass: document.getElementById('input-temp-pass').value.trim(),
-        isTemp: true,
-        xp: editIdx >= 0 ? students[editIdx].xp : 0
-      };
-
-      if (editIdx >= 0) students[editIdx] = studentData;
-      else students.push(studentData);
-
-      saveState();
-      document.getElementById('modal-student').close();
-    });
-
-    document.getElementById('btn-manage-classes').addEventListener('click', () => {
-      renderClassList();
-      document.getElementById('modal-classes').showModal();
-    });
-
-    function renderClassList() {
-      const ul = document.getElementById('class-list-ul');
-      ul.innerHTML = classes.map((c, i) => `
-        <li style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-          <span>${c}</span>
-          <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deleteClass(${i})">Remove</button>
-        </li>
-      `).join('');
-    }
-
-    document.getElementById('btn-add-class-confirm').addEventListener('click', () => {
-      const val = document.getElementById('input-new-class-name').value.trim();
-      if (val && !classes.includes(val)) {
-        classes.push(val);
-        document.getElementById('input-new-class-name').value = '';
-        renderClassList();
-        saveState();
-      }
-    });
-
-    window.deleteClass = function(index) {
-      if (confirm(`Remove class "${classes[index]}"?`)) {
-        classes.splice(index, 1);
-        renderClassList();
-        saveState();
-      }
-    };
-
-    document.getElementById('btn-teacher-settings').addEventListener('click', () => {
-      document.getElementById('teacher-recovery-email').value = teacherEmail;
-      document.getElementById('settings-msg').hidden = true;
-      document.getElementById('modal-teacher-settings').showModal();
-    });
-
-    document.getElementById('form-teacher-settings').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const newEmail = document.getElementById('teacher-recovery-email').value.trim();
-      const newPass = document.getElementById('teacher-new-pass').value;
-      const msg = document.getElementById('settings-msg');
-
-      if (newEmail) {
-        teacherEmail = newEmail;
-        localStorage.setItem('oqab_teacher_email', teacherEmail);
-      }
-      if (newPass) {
-        localStorage.setItem('oqab_teacher_pass', newPass);
-      }
-
-      msg.textContent = "Settings saved successfully!";
-      msg.style.color = "var(--green)";
-      msg.hidden = false;
-      setTimeout(() => document.getElementById('modal-teacher-settings').close(), 1200);
-    });
-
-    document.getElementById('search-input').addEventListener('input', renderDashboard);
-    document.getElementById('class-filter').addEventListener('change', renderDashboard);
-
-    document.getElementById('btn-export-roster').addEventListener('click', () => {
-      const rows = [
-        ["Student ID", "First Name", "Last Name", "Class", "Password", "XP"],
-        ...students.map(s => [s.id, s.firstName, s.lastName, s.className, s.pass, s.xp || 0])
-      ];
-      const csvContent = "\uFEFF" + rows.map(r => r.map(c => `"${c}"`).join(",")).join("\r\n");
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `Oqab_Academy_Roster_${new Date().toISOString().slice(0,10)}.csv`;
-      a.click();
-    });
-
-    document.getElementById('btn-import-roster').addEventListener('click', () => document.getElementById('file-import-csv').click());
-    document.getElementById('file-import-csv').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const lines = event.target.result.split('\n').filter(l => l.trim().length > 0);
-          const imported = [];
-          for (let i = 1; i < lines.length; i++) {
-            const cols = lines[i].split(',').map(c => c.replace(/["\r]/g, '').trim());
-            if (cols[0] && cols) {
-              imported.push({
-                id: cols[0], firstName: cols, lastName: cols || '',
-                className: cols || 'Level B', pass: cols || 'Oqab2026!',
-                isTemp: true, xp: parseInt(cols) || 0
-              });
-            }
-          }
-          if (imported.length) { students = imported; saveState(); alert(`Imported ${imported.length} students!`); }
-        } catch (err) {
-          alert("Could not import file.");
-        }
-      };
-      reader.readAsText(file);
-    });
-
-    renderDashboard();
-  </script>
+  <!-- Connect to the newly refactored Firebase module -->
+  <script type="module" src="admin.js"></script>
 </body>
 </html>
