@@ -158,9 +158,10 @@ function copyResult(){const text=resultText();$('result-copy-text').value=text;$
 function downloadResult(){const r=lastResult;exportCSV('Vocabulary-Unit-'+r.unit+'-Result.csv',[['Student',currentUser.firstName+' '+currentUser.lastName],['Activity',r.label],['Unit',r.unit],['Result',r.score],['XP',r.xp],['Date',new Date(r.time).toISOString()],[],['Word','Question','Your answer','Correct','Explanation'],...(r.answers||[]).map(a=>[a.word,a.prompt,a.chosen,a.correct?'Yes':'No',a.explanation])]);}
 
 // --- GLOBAL EXPORTS ---
-// Exposing functions and variables to the window object ensures that 
-// inline HTML events and external exercise scripts continue to work 
-// seamlessly now that this file is a module.
+window.$ = $;
+window.escapeHTML = escapeHTML;
+window.clone = clone;
+window.number = number;
 
 window.loginAsStudent = loginAsStudent;
 window.logout = logout;
