@@ -1,0 +1,35 @@
+// vocab/audio-data.js
+export const CAMBRIDGE_MEDIA_ROOT = 'https://dictionary.cambridge.org/media/english/';
+
+export const CAMBRIDGE_IRREGULAR_AUDIO_PATHS = Object.freeze({
+  inimitable:'us_pron/e/eus/eus72/eus72429.mp3',
+  vengeance:'us_pron/e/eus/eus74/eus74820.mp3',
+  perjury:'us_pron/e/eus/eus73/eus73508.mp3',
+  decrease:'us_pron/e/eus/eus71/eus71175.mp3',
+  disputatious:'us_pron/u/usd/usdis/usdisin028.mp3',
+  evict:'us_pron/e/eus/eus71/eus71685.mp3',
+  insubordinate:'us_pron/e/eus/eus72/eus72455.mp3',
+  nub:'us_pron/u/usn/usnub/usnub__001.mp3',
+  onslaught:'us_pron/e/eus/eus75/eus75219.mp3',
+  ordain:'us_pron/e/eus/eus75/eus75278.mp3',
+  outstrip:'us_pron/e/eus/eus75/eus75382.mp3',
+  canvass:'us_pron/c/can/canva/canvas.mp3',
+  downtrodden:'us_pron/u/usd/usdow/usdownt001.mp3',
+  ordeal:'us_pron/e/eus/eus75/eus75279.mp3',
+  parch:'us_pron/c/cdo/cdo03/cdo0318usparc3551.mp3',
+  beneficiary:'us_pron/e/eus/eus70/eus70508.mp3',
+  mull:'us_pron/u/usm/usmuc/usmucku013.mp3',
+  overture:'us_pron/e/eus/eus75/eus75445.mp3',
+  pact:'us_pron/p/pac/packe/packed.mp3',
+  heartrending:'us_pron/u/ush/ushea/usheart008.mp3',
+  blurt:'us_pron/u/usc/uscld/uscld00103.mp3',
+  enchant:'us_pron/e/eus/eus75/eus75684.mp3',
+  handicraft:'us_pron/u/ush/usham/ushamha012.mp3',
+  hilarious:'us_pron/e/eus/eus72/eus72219.mp3',
+  impostor:'us_pron/i/imp/impos/imposter.mp3',
+  oppress:'us_pron/e/eus/eus75/eus75248.mp3',
+  indisposed:'us_pron/u/usi/usind/usindia011.mp3',
+  officiate:'us_pron/e/eus/eus75/eus75175.mp3',
+  rite:'us_pron/r/rig/right/right.mp3',
+  sagacious:'us_pron/u/uss/ussac/ussackc025.mp3'
+});
